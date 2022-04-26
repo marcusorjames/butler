@@ -1,0 +1,56 @@
+#!/bin/sh
+# A dev stack builder, Install and manage your dev stack.
+# Manage multiple PHP versions, automatically serve any folder
+
+package="butler"
+DIR="$(dirname "$(readlink -f "$0")")"
+COMMON=$DIR/bin/common
+. $COMMON/colours.inc
+
+setup()
+{
+  if [ -f "$DIR/.env" ]; then
+    export $(cat .env | xargs)
+    # SITES_DIR
+  else
+    echo "No .env file found" && exit 0;
+  fi
+
+  # Strip trailing slash
+  SITES_DIR=${SITES_DIR%/}
+  # Ensure site directory exists
+  mkdir -p $SITES_DIR
+}
+
+print_usage()
+{
+  echo "butler version 0.1.0 - your friendly dev stack helper"
+  echo " "
+  echo "SYNOPSIS:"
+  echo " "
+  echo "$package COMMAND ..."
+  echo " "
+  echo "Commands: "
+  echo "install    Install butler"
+  echo "site       Perform site commands"
+  echo "up         Create and start container stack"
+}
+
+setup
+
+[ ! "$#" -gt 0 ] && print_usage && exit 1
+
+function="$1"
+shift
+
+case $function in
+    'install') $DIR/bin/install "$@" ;;
+    'site') $DIR/bin/site "$@" ;;
+    'up') $DIR/bin/docker-compose up "$@" ;;
+    'down') $DIR/bin/docker-compose down "$@" ;;
+    *) print_usage ; exit 1;;
+esac
+
+
+
+

@@ -1,0 +1,40 @@
+#!/bin/sh
+# site add subcommand
+
+package="butler site add"
+
+DIR="$(dirname "$(readlink -f "$0")")"
+COMMON=$DIR/common
+. $COMMON/colours.inc
+
+print_usage() {
+  echo "Add a new site"
+  echo " "
+  echo "SYNOPSIS:"
+  echo " "
+  echo "$package name template"
+}
+
+check_template_dir() {
+  [ ! -d $1 ] && echo "${CError}Error: Template does not exist" \
+    && echo " " \
+    && echo "${CWarn}Available templates are $(ls -m $DIR/../templates/)" \
+    && exit 1
+}
+
+check_site_doesnt_exist() {
+  [ -d $1 ] && echo "${CError}Error: Site already exists" && exit 1
+}
+
+main() {
+  site_dir="$SITES_DIR/$1"
+  template_dir="$DIR/../templates/$2/"
+
+  [ ! "$#" -gt 1 ] && print_usage && exit 1
+  check_template_dir $template_dir
+  check_site_doesnt_exist $site_dir
+
+  cp $template_dir "$SITES_DIR/" -r
+}
+
+main "$@"

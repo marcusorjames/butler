@@ -1,0 +1,18 @@
+version: '3'
+services:
+  php:
+    build:
+      context: .
+      dockerfile: PHP.DockerFile
+    volumes:
+      - <project_root>:/var/www/html
+      - ./docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+    expose:
+     - 80
+    environment:
+      VIRTUAL_HOST: <domain>
+      APACHE_DOCUMENT_ROOT: /var/www/html/public
+networks:
+  default:
+    external:
+      name: nginx-proxy

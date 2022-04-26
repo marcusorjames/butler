@@ -1,0 +1,27 @@
+version: '3'
+services:
+  web:
+    image: nginx:latest
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+      - <project_root>:/app
+    expose:
+     - 80
+    environment:
+      VIRTUAL_HOST: <domain>
+  php:
+    build:
+      context: .
+      dockerfile: PHP.DockerFile
+    volumes:
+      - ./app:/app
+    networks:
+      - mysql
+      - default
+networks:
+  mysql:
+    external:
+      name: mysql
+  default:
+    external:
+      name: nginx-proxy

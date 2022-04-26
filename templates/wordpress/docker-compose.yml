@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+   wordpress:
+     image: wordpress:latest
+     expose:
+       - 80
+     restart: always
+     environment:
+       VIRTUAL_HOST: wordpress.local
+     container_name: wordpress
+networks:
+  default:
+    external:
+      name: nginx-proxy

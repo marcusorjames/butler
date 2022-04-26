@@ -1,0 +1,33 @@
+#!bin/sh
+# Autocomplete for butler
+
+DIR="$(dirname "$(readlink -f "$0")")"
+export $(cat "$DIR/../.env" | xargs)
+TEMPLATES="$DIR/../templates"
+
+_butler_autocomplete()
+{
+    local cur prev
+
+    cur=${COMP_WORDS[COMP_CWORD-1]}
+    prev=${COMP_WORDS[COMP_CWORD-2]}
+
+    case ${COMP_CWORD} in
+        1) COMPREPLY=() ;;
+        2)
+            case ${cur} in
+                up|down)
+                    COMPREPLY=($(compgen -W "$(ls $SITES_DIR/)"))
+            esac
+            ;;
+        4)
+            case ${prev} in
+                add)
+                    COMPREPLY=($(compgen -W "$(ls $TEMPLATES)"))
+            esac
+            ;;
+        *) COMPREPLY=() ;;
+    esac
+}
+
+complete -F _butler_autocomplete butler

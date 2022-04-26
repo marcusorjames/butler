@@ -1,0 +1,19 @@
+version: '3'
+services:
+  mysql:
+    image: mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: 'secret'
+    volumes:
+      - mysqldata:/var/lib/mysql
+    ports:
+      - 3306:3306
+    networks:
+      - mysql
+volumes:
+    mysqldata: {}
+networks:
+  mysql:
+    external:
+      name: mysql
+

@@ -1,0 +1,46 @@
+#!/bin/sh
+# Docker compose proxy
+
+PACKAGE="butler"
+
+DIR="$(dirname "$(readlink -f "$0")")"
+COMMON=$DIR/common
+. $COMMON/colours.inc
+
+print_usage() {
+  echo "Docker Compose proxy"
+  echo " "
+  echo "SYNOPSIS:"
+  echo " "
+  echo "$PACKAGE COMMAND... [options]"
+  echo ""
+  echo "COMMAND / Options:"
+  echo "See --help inherited from docker-compose"
+}
+
+[ ! "$#" -gt 0 ] && print_usage && exit 1
+
+cmd="$1"
+site="$2"
+site_dir="$SITES_DIR/$site"
+
+shift
+shift
+
+# Ensure nginx-proxy is up
+[ ! "$(docker ps | grep nginx-proxy)" ] && docker-compose \
+    --project-directory "$DIR/../common/nginx-proxy" up -d
+
+
+# Run any site scripts
+if [ -f "$site_dir/scripts/$cmd" ]; then
+  . "$site_dir/scripts/$cmd"
+fi
+
+docker-compose --project-directory $site_dir $cmd "$@"
+
+
+
+
+
+

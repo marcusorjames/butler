@@ -1,0 +1,33 @@
+#!/bin/sh
+# site subcommand
+
+package="butler site"
+
+DIR="$(dirname "$(readlink -f "$0")")"
+COMMON=$DIR/common
+. $COMMON/colours.inc
+
+print_usage() {
+  echo "Manage sites"
+  echo " "
+  echo "SYNOPSIS:"
+  echo " "
+  echo "$package COMMAND ..."
+  echo " "
+  echo "Commands: "
+  echo "add    Add a new site"
+}
+
+[ ! "$#" -gt 0 ] && print_usage && exit 1
+
+function="$1"
+shift
+
+case $function in
+    'add') $DIR/site-add "$@" ;;
+    *) print_usage ; exit 1;;
+esac
+
+
+
+
