@@ -1,40 +1,95 @@
-#!/bin/sh
+#!/bin/bash
 # site add subcommand
 
 package="butler site add"
 
-DIR="$(dirname "$(readlink -f "$0")")"
-COMMON=$DIR/common
-. $COMMON/colours.inc
+. $COMMON/fzfread.sh
 
 print_usage() {
   echo "Add a new site"
   echo " "
   echo "SYNOPSIS:"
   echo " "
-  echo "$package name template"
+  echo "$package name [OPTION]"
+  echo " "
+  echo "  -h, --help          print this help"
+  echo "  -c, --context       project context e.g. personal"
+  echo "  -n, --name          name of the project (defaults to the repository name)"
+  echo "  -t, --template      site template such as 'wordpress'"
+  echo "  -r, --repository    git repository"
 }
 
-check_template_dir() {
-  [ ! -d $1 ] && echo "${CError}Error: Template does not exist" \
+check_template_exists() {
+  [ ! -d $1 ] && echo -e "${CError}Error: Template does not exist" \
     && echo " " \
-    && echo "${CWarn}Available templates are $(ls -m $DIR/../templates/)" \
+    && echo -e "${CWarn}Available templates are $(ls -m $DIR/../templates/)" \
     && exit 1
 }
 
-check_site_doesnt_exist() {
-  [ -d $1 ] && echo "${CError}Error: Site already exists" && exit 1
+check_dir() {
+  [ -d $1 ] && echo -e "${CError}Error: $2 already exists" && exit 1
 }
 
 main() {
-  site_dir="$SITES_DIR/$1"
-  template_dir="$DIR/../templates/$2/"
 
-  [ ! "$#" -gt 1 ] && print_usage && exit 1
-  check_template_dir $template_dir
-  check_site_doesnt_exist $site_dir
+  dry_run=false
+  help=false
+  name=''
+  context=''
+  repository=''
+  template=''
+  verbose=false
 
-  cp $template_dir "$SITES_DIR/" -r
+  while true; do
+    case "$1" in
+      -d | --dry-run ) dry_run=true; shift ;;
+      -h | --help )    help=true; shift ;;
+      -c | --context ) context="$context"; shift ;;
+      -n | --name )    name="$2"; shift 2 ;;
+      -r | --repository ) repository="$2" shift 2 ;;
+      -t | --template ) template="$2" shift 2 ;;
+      -v | --verbose ) verbose=true; shift ;;
+      -- ) shift; break ;;
+      * ) break ;;
+    esac
+  done
+
+  $help && print_usage && exit 1
+
+  template_root="$DIR/../templates"
+
+  [ -z $template ] && fzf_read $template_root "Specify a template: " template
+  [ -z $template ] && template="NULL" # Because the root dir is a directory
+
+  template_dir="$template_root/$template"
+
+  check_template_exists $template_dir
+
+  [ -z $name ] && read -p "Specify a name: " name
+  site_dir="$SITES_DIR/$name"
+  check_dir $site_dir "Site"
+
+  [ -z $repository ] && read -p "Specify a repository: " repository
+  # TODO: check if valid repository
+
+  $REQUIRED_CONTEXT && [ -z $context ] && read -p "Specify a context: " context
+
+  [[ ! "$context" =~ ^[[:alpha:]]*$ ]] && echo -e "${CError}Context must be alphabetic" && exit 1
+
+  project_dir=$PROJECTS_DIR
+  [ ! -z $context ] && project_dir="$project_dir/$context"
+  project_dir="$project_dir/$name"
+  check_dir $project_dir "Project"
+
+  echo $project_dir
+
+  # cp -r $template_dir "$site_dir/"
+  # mkdir -p $project_dir
+  # git clone $repository $project_dir
+
 }
 
 main "$@"
+
+# TODOS:
+# - Add a default template

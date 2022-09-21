@@ -5,7 +5,7 @@ PACKAGE="butler"
 
 DIR="$(dirname "$(readlink -f "$0")")"
 COMMON=$DIR/common
-. $COMMON/colours.inc
+. $COMMON/colours.sh
 
 print_usage() {
   echo "Docker Compose proxy"

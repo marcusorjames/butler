@@ -1,11 +1,9 @@
-#!/bin/sh
+#!/bin/bash
 # site subcommand
 
 package="butler site"
 
-DIR="$(dirname "$(readlink -f "$0")")"
-COMMON=$DIR/common
-. $COMMON/colours.inc
+DIR="$DIR/bin"
 
 print_usage() {
   echo "Manage sites"
@@ -24,10 +22,7 @@ function="$1"
 shift
 
 case $function in
-    'add') $DIR/site-add "$@" ;;
+    'add') . $DIR/site-add "$@" ;;
     *) print_usage ; exit 1;;
 esac
-
-
-
 
