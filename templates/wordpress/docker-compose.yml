@@ -1,15 +1,26 @@
 version: "3"
 
 services:
-   wordpress:
+   web:
      image: wordpress:latest
+     volumes:
+        - ./app:/app
      expose:
        - 80
-     restart: always
      environment:
        VIRTUAL_HOST: wordpress.local
      container_name: wordpress
+     networks:
+       - default
+       - mysql
+       - mailhog
 networks:
+  mysql:
+    external:
+      name: mysql
   default:
     external:
       name: nginx-proxy
+  mailhog:
+    external:
+      name: mailhog
