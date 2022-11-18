@@ -81,11 +81,11 @@ main() {
   project_dir="$project_dir/$name"
   check_dir $project_dir "Project"
 
-  echo $project_dir
+  cp -r $template_dir "$site_dir/"
+  mkdir -p $project_dir
+  git clone $repository $project_dir
 
-  # cp -r $template_dir "$site_dir/"
-  # mkdir -p $project_dir
-  # git clone $repository $project_dir
+  ln -s $project_dir "$site_dir/app"
 
 }
 
