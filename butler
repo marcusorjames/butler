@@ -6,6 +6,7 @@ package="butler"
 DIR="$(dirname "$(readlink -f "$0")")"
 COMMON=$DIR/bin/common
 . $COMMON/colours.sh
+CURRENT_PROJ="$(basename $PWD)"
 
 # PATH any common binarys
 export PATH="$PATH:$DIR/bin/common"
@@ -19,8 +20,8 @@ setup()
     echo "No .env file found" && exit 0;
   fi
 
-
-  #TODO: Dry the directroy env santisation up
+  # TODO: Dry the directroy env santisation up
+  # TODO: .env validation e.g. does SITES_DIR have a value
 
   # Strip trailing slash
   SITES_DIR=${SITES_DIR%/}
@@ -54,6 +55,8 @@ print_usage()
   echo "install    Install butler"
   echo "site       Perform site commands"
   echo "up         Create and start container stack"
+  echo "down       Stop container stack"
+  echo "run        Run command on container"
 }
 
 setup
@@ -68,9 +71,8 @@ case $function in
     'site') . $DIR/bin/site "$@" ;;
     'up') . $DIR/bin/docker-compose up "$@" ;;
     'down') . $DIR/bin/docker-compose down "$@" ;;
+    'run') . $DIR/bin/docker-compose "exec php" "$CURRENT_PROJ" "$@" ;;
     *) print_usage ; exit 1;;
 esac
-
-
 
 
