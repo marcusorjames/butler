@@ -3,7 +3,7 @@
 
 PACKAGE="butler"
 
-DIR="$(dirname "$(readlink -f "$0")")"
+DIR="$DIR/bin"
 COMMON=$DIR/common
 . $COMMON/colours.sh
 
@@ -18,11 +18,17 @@ print_usage() {
   echo "See --help inherited from docker-compose"
 }
 
+check_dir_exists() {
+  [ ! -d $1 ] && echo -e "${CError}Error: $2 doesn't exists" && exit 1
+}
+
 [ ! "$#" -gt 0 ] && print_usage && exit 1
 
 cmd="$1"
 site="$2"
 site_dir="$SITES_DIR/$site"
+
+check_dir_exists $site_dir 'Site'
 
 shift
 shift
@@ -38,9 +44,4 @@ if [ -f "$site_dir/scripts/$cmd" ]; then
 fi
 
 docker-compose --project-directory $site_dir $cmd "$@"
-
-
-
-
-
 
