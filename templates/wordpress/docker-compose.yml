@@ -2,13 +2,15 @@ version: "3"
 
 services:
    web:
-     image: wordpress:latest
+     image: andreccosta/wordpress-xdebug:latest
      volumes:
         - ./app:/app
      expose:
        - 80
      environment:
        VIRTUAL_HOST: wordpress.local
+       XDEBUG_MODE: debug
+       XDEBUG_CONFIG: start_with_request=yes discover_client_host=1
      container_name: wordpress
      networks:
        - default
