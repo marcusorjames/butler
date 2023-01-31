@@ -83,7 +83,7 @@ main() {
 
   cp -r $template_dir "$site_dir/"
   mkdir -p $project_dir
-  git clone $repository $project_dir
+  [ -z $repository ] && git clone $repository $project_dir
 
   ln -s $project_dir "$site_dir/app"
 
