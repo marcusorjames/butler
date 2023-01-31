@@ -4,7 +4,7 @@ services:
    web:
      image: wordpress:latest
      volumes:
-        - ./app:/app
+        - ./app:/var/www/html
      expose:
        - 80
      environment:
