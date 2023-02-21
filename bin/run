@@ -1,0 +1,45 @@
+#!/bin/sh
+# Docker compose proxy
+
+PACKAGE="butler run"
+
+SCRIPTS_DIR="$DIR/scripts"
+DIR="$DIR/bin"
+
+COMMON=$DIR/common
+. $COMMON/colours.sh
+
+print_usage() {
+  echo "Run a custon script"
+  echo " "
+  echo "SYNOPSIS:"
+  echo " "
+  echo "$PACKAGE script... [options]"
+  echo ""
+}
+
+check_dir_exists() {
+  [ ! -d $1 ] && echo -e "${CError}Error: $2 doesn't exists" && exit 1
+}
+
+[ ! "$#" -gt 0 ] && print_usage && exit 1
+
+check_dir_exists $CURRENT_SITE_DIR 'Site'
+
+cmd_name="$1"
+site_cmd="$CURRENT_SITE_DIR/scripts/$cmd_name"
+cmd="$SCRIPTS_DIR/$cmd_name"
+
+shift
+
+# Run script
+if [ -f $site_cmd ]; then
+  . $site_cmd "$@"
+  exit 0
+elif [ -f $cmd ]; then
+  . $cmd "$@"
+  exit 0
+else
+  echo -e "${CError}Error: $site_cmd or $cmd doesn't exists" && exit 1
+fi
+
