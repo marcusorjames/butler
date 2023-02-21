@@ -36,6 +36,9 @@ setup()
   # Replace ~
   PROJECTS_DIR="${PROJECTS_DIR/\~/$HOME}"
 
+  CURRENT_SITE_DIR="${SITES_DIR}/${CURRENT_PROJ}"
+  CURRENT_PROJ_DIR="${PROJECTS_DIR}/${CURRENT_PROJ}"
+
   # Ensure sites directory exists
   mkdir -p $PROJECTS_DIR
 # TODO: Check the env file is working as this is just defined in site add...
@@ -56,7 +59,8 @@ print_usage()
   echo "site       Perform site commands"
   echo "up         Create and start container stack"
   echo "down       Stop container stack"
-  echo "run        Run command on container"
+  echo "exec       Execute command on container"
+  echo "run        Run a custom script"
 }
 
 setup
@@ -71,8 +75,8 @@ case $function in
     'site') . $DIR/bin/site "$@" ;;
     'up') . $DIR/bin/docker-compose up "$@" ;;
     'down') . $DIR/bin/docker-compose down "$@" ;;
-    'run') . $DIR/bin/docker-compose "exec php" "$CURRENT_PROJ" "$@" ;;
+    'exec') . $DIR/bin/docker-compose "exec php" "$CURRENT_PROJ" "$@" ;;
+    'run') . $DIR/bin/run "$@" ;;
     *) print_usage ; exit 1;;
 esac
-
 

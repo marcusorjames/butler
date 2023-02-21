@@ -1,0 +1,4 @@
+#!/bin/sh
+
+docker run -it --init --rm -v $CURRENT_SITE_DIR/app:/srv -w="/srv" huli/gulp "$@"
+
