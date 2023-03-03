@@ -10,7 +10,7 @@ services:
      environment:
        VIRTUAL_HOST: wordpress.local
        XDEBUG_MODE: debug
-       XDEBUG_CONFIG: start_with_request=yes discover_client_host=1
+       XDEBUG_CONFIG: start_with_request=yes discover_client_host=1 log_level=0
      container_name: wordpress
      networks:
        - default
