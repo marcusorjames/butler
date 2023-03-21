@@ -122,6 +122,7 @@ main() {
 main "$@"
 
 # TODOS:
+# - Chown $USER:www-data
 # - Add a default template
 # - Add template replacing
 # - Add ability to add things to the docker compose file e.g. mysql etc
