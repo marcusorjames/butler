@@ -1,6 +1,7 @@
 version: '3'
 services:
   mysql:
+    container_name: mysql
     image: mariadb:latest
     environment:
       MYSQL_ROOT_PASSWORD: 'secret'
