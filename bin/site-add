@@ -1,16 +1,21 @@
 #!/bin/bash
 # site add subcommand
 
+# project_dir_exists=false
+# if [ $project_dir_exists = false ]; then
+#   echo "hello"
+# fi
+# exit
+
 package="butler site add"
 
 . $COMMON/fzfread.sh
+. $COMMON/colours.sh
+. $COMMON/statusline.sh
 
 print_usage() {
   echo "Add a new site"
-  echo " "
-  echo "SYNOPSIS:"
-  echo " "
-  echo "$package name [OPTION]"
+  echo " " echo "SYNOPSIS:" echo " " echo "$package name [OPTION]"
   echo " "
   echo "  -h, --help          print this help"
   echo "  -c, --context       project context e.g. personal"
@@ -40,14 +45,14 @@ main() {
   template=''
   verbose=false
 
-  while true; do
+  while [[ $# -gt 0 ]]; do
     case "$1" in
       -d | --dry-run ) dry_run=true; shift ;;
       -h | --help )    help=true; shift ;;
-      -c | --context ) context="$context"; shift ;;
+      -c | --context ) context="$2"; shift 2;;
       -n | --name )    name="$2"; shift 2 ;;
-      -r | --repository ) repository="$2" shift 2 ;;
-      -t | --template ) template="$2" shift 2 ;;
+      -r | --repository ) repository="$2"; shift 2 ;;
+      -t | --template ) template="$2"; shift 2 ;;
       -v | --verbose ) verbose=true; shift ;;
       -- ) shift; break ;;
       * ) break ;;
@@ -79,11 +84,36 @@ main() {
   project_dir=$PROJECTS_DIR
   [ ! -z $context ] && project_dir="$project_dir/$context"
   project_dir="$project_dir/$name"
-  check_dir $project_dir "Project"
 
+  # Check if we already have a project dir and if we do prompt to contine
+  project_dir_exists=false
+  [ -d "$project_dir" ] && project_dir_exists=true
+  if $project_dir_exists; then
+    if [ -d "$project_dir/.git" ]; then
+      existing_repo_url=$(git -C $project_dir config --get remote.origin.url)
+      read -p "$(echo -e "Project dir" \
+        "$Green$project_dir$Color_Off already exists with the following git" \
+        "repository $Green$existing_repo_url$Color_Off continue? [Yn] ")" \
+        -n 1 -r && echo
+      else
+        read -p "$(echo -e "Project dir $Green$project_dir$Color_Off already" \
+          "exists continue? [Yn] ")" -n 1 -r && echo
+    fi
+    [[ ! $REPLY =~ ^[Yy]$ ]] && exit 0
+  fi
+
+  statusLine "Creating Site directory" "done"
   cp -r $template_dir "$site_dir/"
-  mkdir -p $project_dir
-  [ -z $repository ] && git clone $repository $project_dir
+  if [ $project_dir_exists = false ]; then
+    statusLine "Creating Project directory" "done"
+    mkdir -p $project_dir
+    [ -n $repository ] && git clone $repository $project_dir
+  else
+    statusLine "Creating Project directory" "skipped"
+    statusLine "Cloning into $project_dir" "skipped"
+  fi
+
+  statusLine "Linking Project to Site" "done"
 
   ln -s $project_dir "$site_dir/app"
 
@@ -93,3 +123,5 @@ main "$@"
 
 # TODOS:
 # - Add a default template
+# - Add template replacing
+# - Add ability to add things to the docker compose file e.g. mysql etc
