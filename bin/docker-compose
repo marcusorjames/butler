@@ -30,13 +30,15 @@ site_dir="$SITES_DIR/$site"
 
 check_dir_exists $site_dir 'Site'
 
-shift
-shift
+shift 2
+
+# Ensure we are not in a docker directory as this breaks --project-directory
+# docker-compose commands!
+cd $DIR
 
 # Ensure nginx-proxy is up
 [ ! "$(docker ps | grep nginx-proxy)" ] && docker-compose \
     --project-directory "$DIR/../common/nginx-proxy" up -d
-
 
 # Run any site scripts
 if [ -f "$site_dir/scripts/$cmd" ]; then
