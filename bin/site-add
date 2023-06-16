@@ -15,7 +15,9 @@ package="butler site add"
 
 print_usage() {
   echo "Add a new site"
-  echo " " echo "SYNOPSIS:" echo " " echo "$package name [OPTION]"
+  echo " " echo "SYNOPSIS:"
+  echo " "
+  echo "$package NAME [OPTION]"
   echo " "
   echo "  -h, --help          print this help"
   echo "  -c, --context       project context e.g. personal"
