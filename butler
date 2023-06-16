@@ -42,7 +42,8 @@ setup()
   # Ensure sites directory exists
   mkdir -p $PROJECTS_DIR
 # TODO: Check the env file is working as this is just defined in site add...
-  # TODO: Check that fzf is installed and if not issue a warning that experince is better with it
+# TODO: Check that fzf is installed and if not issue a warning that experince is better with it
+# TODO: add site cd
 
 }
 
@@ -54,13 +55,23 @@ print_usage()
   echo " "
   echo "$package COMMAND ..."
   echo " "
-  echo "Commands: "
-  echo "install    Install butler"
-  echo "site       Perform site commands"
-  echo "up         Create and start container stack"
-  echo "down       Stop container stack"
-  echo "exec       Execute command on container"
-  echo "run        Run a custom script"
+  echo -e "${Blue}Commands: "
+  echo " "
+  echo -e "${Yellow}System:"
+  echo -e ""
+  echo -e "${Green}install    ${Color_Off}Install butler"
+  echo -e ""
+  echo -e "${Yellow}Site Management:"
+  echo -e ""
+  echo -e "${Green}site add   ${Color_Off}Add a new site"
+  echo -e "${Green}site cd   ${Color_Off}Change Dicretory to site"
+  echo -e ""
+  echo -e "${Yellow}docker-compose Commands"
+  echo -e ""
+  echo -e "${Green}up        ${Color_Off}Create and start container stack"
+  echo -e "${Green}down      ${Color_Off}Stop container stack"
+  echo -e "${Green}exec      ${Color_Off}Execute command on container"
+  echo -e "${Green}run       ${Color_Off}Run a custom script"
 }
 
 setup

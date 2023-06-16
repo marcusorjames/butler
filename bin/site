@@ -12,8 +12,10 @@ print_usage() {
   echo " "
   echo "$package COMMAND ..."
   echo " "
-  echo "Commands: "
-  echo "add    Add a new site"
+  echo -e "${Yellow}Site Management:"
+  echo -e ""
+  echo -e "${Green}add   ${Color_Off}Add a new site"
+  echo -e "${Green}cd    ${Color_Off}Change Dicretory to site"
 }
 
 [ ! "$#" -gt 0 ] && print_usage && exit 1
@@ -23,6 +25,7 @@ shift
 
 case $function in
     'add') . $DIR/site-add "$@" ;;
+    'cd') $DIR/site-cd "$@" ;;
     *) print_usage ; exit 1;;
 esac
 
