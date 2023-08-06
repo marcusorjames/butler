@@ -5,7 +5,7 @@ services:
       context: .
       dockerfile: PHP.DockerFile
     volumes:
-      - app:/var/www/html
+      - ./app:/var/www/html
       - ./docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     expose:
      - 80
