@@ -1,0 +1,31 @@
+version: '3'
+services:
+  php:
+    build:
+      context: .
+      dockerfile: PHP.DockerFile
+    volumes:
+      - ./app:/var/www/html
+      - ~/.ssh/id_rsa:/root/.ssh/id_rsa:ro
+      - ./docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
+    expose:
+     - 80
+    environment:
+      VIRTUAL_HOST: <domain>
+      APACHE_DOCUMENT_ROOT: /var/www/html/public
+      APACHE_COMMERCE_DOCUMENT_ROOT: /var/www/html/shared/lib/commerce/public
+    networks:
+      - default
+      - mysql
+      - mailhog
+networks:
+  mailhog:
+    external:
+      name: mailhog
+  mysql:
+    external:
+      name: mysql
+  default:
+    external:
+      name: nginx-proxy
