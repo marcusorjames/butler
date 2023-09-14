@@ -11,6 +11,8 @@ services:
       - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
     expose:
      - 80
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     environment:
       VIRTUAL_HOST: <domain>
       APACHE_DOCUMENT_ROOT: /var/www/html/public
