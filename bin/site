@@ -15,7 +15,8 @@ print_usage() {
   echo -e "${Yellow}Site Management:"
   echo -e ""
   echo -e "${Green}add   ${Color_Off}Add a new site"
-  echo -e "${Green}cd    ${Color_Off}Change Dicretory to site"
+  echo -e "${Green}cd    ${Color_Off}Change Directory to site"
+  echo -e "${Green}site status   ${Color_Off}Show status of site(s)"
 }
 
 [ ! "$#" -gt 0 ] && print_usage && exit 1
@@ -26,6 +27,7 @@ shift
 case $function in
     'add') . $DIR/site-add "$@" ;;
     'cd') $DIR/site-cd "$@" ;;
+    'status') . $DIR/site-status "$@" ;;
     *) print_usage ; exit 1;;
 esac
 
