@@ -8,5 +8,6 @@ install: ## Install butler
 	@[ -L "/usr/local/bin/butler" ] || sudo ln -s "$(CURRENT_DIR)/butler" "/usr/local/bin/butler"
 	@sudo mkdir -p /etc/bash_completion.d
 	@[ -L "/etc/bash_completion.d/butler" ] || sudo ln -s "$(CURRENT_DIR)/bin/autocomplete" "/etc/bash_completion.d/butler"
-
+	@sudo mkdir -p $(SITES_DIR)
+	@sudo mkdir -p $(PROJECTS_DIR)
 
