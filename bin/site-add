@@ -1,12 +1,6 @@
 #!/bin/bash
 # site add subcommand
 
-# project_dir_exists=false
-# if [ $project_dir_exists = false ]; then
-#   echo "hello"
-# fi
-# exit
-
 package="butler site add"
 
 . $COMMON/fzfread.sh
@@ -61,7 +55,7 @@ main() {
     esac
   done
 
-  $help && print_usage && exit 1
+  $help && print_usage && exit 0
 
   template_root="$DIR/../templates"
 
