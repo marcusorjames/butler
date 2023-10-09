@@ -1,0 +1,63 @@
+#!/bin/bash
+# site status subcommand
+
+package="butler site status"
+
+DIR="$DIR/bin"
+
+print_usage() {
+  echo "Show the status of a site or all sites"
+  echo " " echo "SYNOPSIS:"
+  echo " "
+  echo "$package NAME [OPTION]"
+  echo " "
+  echo "  -h, --help          print this help"
+}
+
+check_site_exists() {
+  site_path="$SITES_DIR/$1"
+  [ ! -d $site_path ] && echo -ne "${CError}Error:${Color_Off} Site ${CWarn}$1" \
+   && echo -e " ${Color_Off}doesn't exist" && exit 1
+}
+
+check_app_exists() {
+  app_path="$SITES_DIR/$1/app"
+  [ -f $app_path ] && return 0
+  return 1
+}
+
+main() {
+  help=false
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -h | --help )    help=true; shift ;;
+      -- ) shift; break ;;
+      * ) break ;;
+    esac
+  done
+
+  $help && print_usage && exit 0
+
+  template_root="$DIR/../templates"
+
+  site="$1"
+
+  [ -z $1 ] && echo -e "${CWarn}All sites is not yet implemented" && exit 0
+
+  check_site_exists $site
+
+  echo -en "$site "
+  if check_app_exists $site; then
+    echo -e "${CSuccess}OK"
+  else
+    echo -e "${CError}ERROR${Color_Off}"
+    echo -en "Run ${Black}${On_White}butler site link <site>${Color_Off} " \
+      && echo "to link the project directory"
+  fi
+
+
+}
+
+main "$@"
+
