@@ -2,6 +2,7 @@
 # Autocomplete for butler
 
 DIR="$(dirname "$(readlink -f "$0")")"
+[ -f "$DIR/../.env" ] || return 0;
 export $(cat "$DIR/../.env" | xargs)
 TEMPLATES="$DIR/../templates"
 
@@ -17,7 +18,7 @@ _butler_autocomplete()
         2)
             case ${cur} in
                 up|down)
-                    COMPREPLY=($(compgen -W "$(ls $SITES_DIR/)"))
+                    COMPREPLY=($(compgen -W "$(ls $BUTLER_SITES_DIR/)"))
             esac
             ;;
         4)
