@@ -5,7 +5,7 @@
 package="butler"
 DIR="$(dirname "$(readlink -f "$0")")"
 COMMON=$DIR/bin/common
-. $COMMON/env.sh
+. $COMMON/setup.sh
 . $COMMON/colours.sh
 CURRENT_PROJ="$(basename $PWD)"
 
