@@ -38,6 +38,7 @@ print_usage()
   echo -e "${Green}down      ${Color_Off}Stop container stack"
   echo -e "${Green}exec      ${Color_Off}Execute command on container"
   echo -e "${Green}run       ${Color_Off}Run a custom script"
+  echo -e "${Green}shell     ${Color_Off}Start a shell session within the application container"
 }
 
 setup
@@ -54,6 +55,7 @@ case $function in
     'down') . $DIR/bin/docker-compose down "$@" ;;
     'exec') . $DIR/bin/docker-compose "exec php" "$CURRENT_PROJ" "$@" ;;
     'run') . $DIR/bin/run "$@" ;;
+    'shell') . $DIR/bin/docker-compose "exec php bash" "$CURRENT_PROJ" "$@" ;;
     *) print_usage ; exit 1;;
 esac
 
