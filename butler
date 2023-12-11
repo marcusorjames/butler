@@ -36,6 +36,7 @@ print_usage()
   echo -e ""
   echo -e "${Green}up        ${Color_Off}Create and start container stack"
   echo -e "${Green}down      ${Color_Off}Stop container stack"
+  echo -e "${Green}restart   ${Color_Off}Restart container stack"
   echo -e "${Green}exec      ${Color_Off}Execute command on container"
   echo -e "${Green}run       ${Color_Off}Run a custom script"
   echo -e "${Green}shell     ${Color_Off}Start a shell session within the application container"
@@ -53,6 +54,7 @@ case $function in
     'site') . $DIR/bin/site "$@" ;;
     'up') . $DIR/bin/docker-compose up "$@" ;;
     'down') . $DIR/bin/docker-compose down "$@" ;;
+    'restart') . $DIR/bin/docker-compose restart "$@" ;;
     'exec') . $DIR/bin/docker-compose "exec php" "$CURRENT_PROJ" "$@" ;;
     'run') . $DIR/bin/run "$@" ;;
     'shell') . $DIR/bin/docker-compose "exec php bash" "$CURRENT_PROJ" "$@" ;;
