@@ -21,10 +21,13 @@ _butler_autocomplete()
                     COMPREPLY=($(compgen -W "$(ls $BUTLER_SITES_DIR/)"))
             esac
             ;;
-        4)
+        3)
             case ${prev} in
-                add)
-                    COMPREPLY=($(compgen -W "$(ls $TEMPLATES)"))
+                site)
+                    case ${cur} in
+                        cd)
+                            COMPREPLY=($(compgen -W "$(ls $BUTLER_SITES_DIR/)"))
+                    esac
             esac
             ;;
         *) COMPREPLY=() ;;
