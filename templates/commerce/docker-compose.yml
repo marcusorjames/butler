@@ -7,6 +7,7 @@ services:
     volumes:
       - ./app:/var/www/html
       - ./docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+      - ~/.ssh/id_rsa:/root/.ssh/id_rsa:ro
       - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
     expose:
      - 80
