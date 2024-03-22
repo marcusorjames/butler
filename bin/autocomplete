@@ -17,7 +17,7 @@ _butler_autocomplete()
         1) COMPREPLY=() ;;
         2)
             case ${cur} in
-                up|down)
+                up|down|restart)
                     COMPREPLY=($(compgen -W "$(ls $BUTLER_SITES_DIR/)"))
             esac
             ;;
