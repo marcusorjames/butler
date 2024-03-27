@@ -15,8 +15,8 @@ RUN sed -i -e 's/deb.debian.org/archive.debian.org/g' \
            -e 's|security.debian.org|archive.debian.org/|g' \
            -e '/stretch-updates/d' /etc/apt/sources.list
 RUN apt-get -y update \
-    && apt-get install -y libicu-dev libpng-dev git
-RUN docker-php-ext-install pdo pdo_mysql gd intl
+    && apt-get install -y libicu-dev libpng-dev git libzip-dev
+RUN docker-php-ext-install pdo pdo_mysql gd intl zip
 RUN git clone -b XDEBUG_2_5_5 https://github.com/xdebug/xdebug.git /root/xdebug \
     && cd /root/xdebug && ./rebuild.sh
 RUN a2enmod rewrite
