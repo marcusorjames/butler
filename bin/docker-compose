@@ -45,5 +45,5 @@ if [ -f "$site_dir/scripts/$cmd" ]; then
   . "$site_dir/scripts/$cmd"
 fi
 
-docker-compose --project-directory $site_dir $cmd "$@"
+docker compose --project-directory $site_dir $cmd "$@"
 
