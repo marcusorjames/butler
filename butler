@@ -56,6 +56,7 @@ case $function in
     'down') . $DIR/bin/docker-compose down "$@" ;;
     'restart') . $DIR/bin/docker-compose restart "$@" ;;
     'exec') . $DIR/bin/docker-compose "exec php" "$CURRENT_PROJ" "$@" ;;
+    'exect') . $DIR/bin/docker-compose "exec -T php" "$CURRENT_PROJ" "$@" ;;
     'run') . $DIR/bin/run "$@" ;;
     'shell') . $DIR/bin/docker-compose "exec php bash" "$CURRENT_PROJ" "$@" ;;
     *) print_usage ; exit 1;;

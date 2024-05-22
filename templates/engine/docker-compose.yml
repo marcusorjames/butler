@@ -7,8 +7,6 @@ services:
     volumes:
       - ./app:/var/www/html
       - ./docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-      - ~/.ssh/id_rsa:/root/.ssh/id_rsa:ro
-      - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
     expose:
      - 80
     extra_hosts:
@@ -16,7 +14,6 @@ services:
     environment:
       VIRTUAL_HOST: <domain>
       APACHE_DOCUMENT_ROOT: /var/www/html/public
-      APACHE_COMMERCE_DOCUMENT_ROOT: /var/www/html/shared/lib/commerce/public
     networks:
       - default
       - mysql
