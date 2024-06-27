@@ -1,0 +1,40 @@
+#!/bin/sh
+# Docker compose proxy
+
+PACKAGE="butler run"
+
+SCRIPTS_DIR="$DIR/scripts"
+DIR="$DIR/bin"
+
+COMMON=$DIR/common
+. $COMMON/colours.sh
+
+site="$1"
+help=false
+
+while [[ $# -gt 0 ]]; do
+  case "$2" in
+    -s | --site ) site="$3"; shift 3;;
+    -h | --help ) help=true; shift ;;
+    -- ) shift; break ;;
+    * ) break ;;
+  esac
+done
+
+print_usage() {
+  echo ""
+  echo "Proxy site through ngrok"
+  echo "SYNOPSIS:"
+  echo " "
+  echo "$PACKAGE proxy... [options]"
+  echo ""
+  echo "COMMAND / Options:"
+  echo "-s|--site Override site"
+  echo ""
+  echo "NOTE:"
+  echo "Ensure NGROK_AUTHTOKEN is set in .env"
+}
+
+$help && print_usage && exit 0
+
+docker run -it --network nginx-proxy -e NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN} ngrok/ngrok:alpine http ${site}:80
