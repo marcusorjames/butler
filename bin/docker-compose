@@ -37,7 +37,7 @@ shift 2
 cd $DIR
 
 # Ensure nginx-proxy is up
-[ ! "$(docker ps | grep nginx-proxy)" ] && docker-compose \
+[ ! "$(docker ps | grep nginx-proxy)" ] && docker compose \
     --project-directory "$DIR/../common/nginx-proxy" up -d
 
 # Run any site scripts
