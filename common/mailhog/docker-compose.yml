@@ -1,4 +1,3 @@
-version: '3'
 services:
   mailhog:
     container_name: mailhog
@@ -10,6 +9,6 @@ services:
       - mailhog
 networks:
   mailhog:
-    external:
-      name: mailhog
+    external: true
+    name: mailhog
 
