@@ -1,4 +1,3 @@
-version: '3'
 services:
   mysql:
     container_name: mysql
@@ -16,6 +15,6 @@ volumes:
     mysqldata: {}
 networks:
   mysql:
-    external:
-      name: mysql
+    external: true
+    name: mysql
 
