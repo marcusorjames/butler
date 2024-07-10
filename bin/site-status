@@ -22,7 +22,7 @@ check_site_exists() {
 
 check_app_exists() {
   app_path="$SITES_DIR/$1/app"
-  [ -f $app_path ] && return 0
+  [ -e $app_path ] && return 0
   return 1
 }
 
@@ -60,4 +60,3 @@ main() {
 }
 
 main "$@"
-

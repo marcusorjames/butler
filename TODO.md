@@ -8,10 +8,7 @@
 - Add --site to docker-compose exec passthrough
 - Remove extra scripts checks from docker-compose passthrough which is only relavent to "up"
 - Add custom commands to Sites/ e.g. "butler artisan" which can be aliased to butler run php /app/artisan
-- ngrok
-    Once domain config is configured, use this instead of project
 - Add laravel, currently have a laravel script to run the build url
-- Add site fix - to fix existing site configs - map app etc.
 - source env file in makefile
     It worked for me because I have run butler, butler exports the env vars
     We should probably prefix the env vars when we export them so that they don't clash
@@ -22,3 +19,4 @@
 - I wonder if there could be some kinda watcher on domains so if you
   browse to example.local and a site exists for that domain it boots it
 - When running exec on a container ensure container is up first
+- Tidy up site fix etc. as they use common functions, pull these out
