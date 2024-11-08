@@ -1,7 +1,17 @@
 # Butler TODO
 
+- Improve composer command to check if composer.phar exists, if so use that, otherwise check composer if not
+  return 1 "composer.phar or composer does not exist on container"
+- Add config for keyfile
+- Check if there is an option on docker compose to not create directories for mounts if they don't exist
+    and instead fail out
+- REWRITE: Sail literally everything is a docker-compose command. Because I want
+to be able to call without the site name from the project directory this should be the default
+therefore `butler up jamgolf` no longer is possible we should instead by default
+assume we are in the project directory otherwise this can be overriden by --site
+THEN we can assume all other arguments are being sent to docker compose
 - Add site config, for example for domain
-- Write scripts to automatically add sites
+- Add command to auto link all sites
 - use that thing that automatically creates hostfile entries
 - add ability to use in project docker compose as well - fall back to docker-composer commands like the laravel one?
 - Look at laravels one as it might help tidy up the code

@@ -43,6 +43,7 @@ print_usage()
   echo -e "${Green}proxy     ${Color_Off}Proxy site through ngrok"
   echo -e "${Green}run       ${Color_Off}Run a custom script"
   echo -e "${Green}shell     ${Color_Off}Start a shell session within the application container"
+  echo -e "${Green}composer  ${Color_Off}Run composer on the container"
 }
 
 setup
@@ -63,5 +64,6 @@ case $function in
     'proxy') . $DIR/bin/proxy "$CURRENT_PROJ" "$@" ;;
     'run') . $DIR/bin/run "$@" ;;
     'shell') . $DIR/bin/docker-compose "exec php bash" "$CURRENT_PROJ" "$@" ;;
+    'composer') . $DIR/bin/docker-compose "exec php php composer.phar" "$CURRENT_PROJ" "$@" ;;
     *) print_usage ; exit 1;;
 esac
