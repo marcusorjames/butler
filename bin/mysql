@@ -1,0 +1,24 @@
+#!/bin/sh
+# mysql
+
+PACKAGE="butler"
+DIR="$DIR/bin"
+
+# Ensure we are not in a docker directory as this breaks --project-directory
+# docker-compose commands!
+cd $DIR
+
+# Ensure mysql is up
+[ ! "$(docker ps | grep mysql)" ] && docker compose \
+  --project-directory "$DIR/../common/mysql" up -d
+
+function="$1"
+shift
+
+argRem="$@"
+[ -z "${function}" ] || argRem="$function $argRem";
+
+case $function in
+    'log') . $DIR/mysql-log ;;
+    *) docker compose --project-directory "$DIR/../common/mysql" exec mysql mysql --password="$MYSQL_PASSWORD" "$argRem" ;;
+esac
