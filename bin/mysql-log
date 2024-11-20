@@ -1,0 +1,21 @@
+#!/bin/sh
+# mysql log
+
+PACKAGE="butler"
+
+trap "butler mysql -e 'SET global general_log=off;'" EXIT
+
+# Ensure we are not in a docker directory as this breaks --project-directory
+# docker-compose commands!
+cd $DIR
+
+# Ensure mysql is up
+[ ! "$(docker ps | grep mysql)" ] && docker compose \
+  --project-directory "$DIR/../common/mysql" up -d
+
+# butler mysql -e "SET global general_log=on; SET"
+butler mysql -e "SET global general_log=on;  \
+  SET global general_log_file='/var/log/mysql/mysql.log'; \
+  SET global log_output = 'file';"
+
+docker compose --project-directory "$DIR/../common/mysql" exec mysql usr/bin/tail -f /var/log/mysql/mysql.log
