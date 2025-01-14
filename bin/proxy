@@ -37,4 +37,4 @@ print_usage() {
 
 $help && print_usage && exit 0
 
-docker run -it --network nginx-proxy -e NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN} ngrok/ngrok:alpine http ${site}:80
+docker run -it --network nginx-proxy -e NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN} ngrok/ngrok:alpine http ${site}.local:80
