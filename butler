@@ -39,6 +39,7 @@ print_usage()
   echo -e "${Green}down       ${Color_Off}Stop container stack"
   echo -e "${Green}restart    ${Color_Off}Restart container stack"
   echo -e "${Green}exec       ${Color_Off}Execute command on container"
+  echo -e "${Green}php        ${Color_Off}Execute php on container"
   echo -e "${Green}exect      ${Color_Off}Execute command on container TTY"
   echo -e "${Green}proxy      ${Color_Off}Proxy site through ngrok"
   echo -e "${Green}run        ${Color_Off}Run a custom script"
@@ -62,6 +63,7 @@ case $function in
     'down') . $DIR/bin/docker-compose down "$@" ;;
     'restart') . $DIR/bin/docker-compose restart "$@" ;;
     'exec') . $DIR/bin/docker-compose "exec php" "$CURRENT_PROJ" "$@" ;;
+    'php') . $DIR/bin/docker-compose "exec php php" "$CURRENT_PROJ" "$@" ;;
     'exect') . $DIR/bin/docker-compose "exec -T php" "$CURRENT_PROJ" "$@" ;;
     'proxy') . $DIR/bin/proxy "$CURRENT_PROJ" "$@" ;;
     'run') . $DIR/bin/run "$@" ;;
