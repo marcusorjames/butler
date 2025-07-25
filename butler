@@ -71,7 +71,7 @@ case $function in
     'proxy') . $DIR/bin/proxy "$CURRENT_PROJ" "$@" ;;
     'run') . $DIR/bin/run "$@" ;;
     'shell') . $DIR/bin/docker-compose "exec php bash" "$CURRENT_PROJ" "$@" ;;
-    'composer') . $DIR/bin/docker-compose "exec php php composer.phar" "$CURRENT_PROJ" "$@" ;;
+    'composer') . $DIR/bin/docker-compose "exec -e COMPOSER_MEMORY_LIMIT=-1 php php composer.phar" "$CURRENT_PROJ" "$@" ;;
     'mysql') . $DIR/bin/mysql ;;
     *) print_usage ; exit 1;;
 esac
