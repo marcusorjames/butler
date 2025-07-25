@@ -56,6 +56,9 @@ setup
 function="$1"
 shift
 
+export HOST_UID=$(id -u)
+export HOST_GID=$(id -g)
+
 case $function in
     'install') . $DIR/bin/install "$@" ;;
     'site') . $DIR/bin/site "$@" ;;
