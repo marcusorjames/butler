@@ -1,10 +1,8 @@
 #!/bin/bash
 # site cd subcommand
 
-package="butler site cd"
-
+PACKAGE="butler site cd"
 DIR=$(readlink -f "$(dirname "$(readlink -f "$0")")/../")
-
 COMMON=$DIR/bin/common
 
 . $COMMON/setup.sh
@@ -16,7 +14,7 @@ print_usage() {
   echo " "
   echo "SYNOPSIS:"
   echo " "
-  echo "$package NAME"
+  echo "$PACKAGE NAME"
 }
 
 check_dir_exists() {
@@ -39,4 +37,3 @@ main() {
 }
 
 main "$@"
-

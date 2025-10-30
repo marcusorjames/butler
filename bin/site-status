@@ -1,15 +1,14 @@
 #!/bin/bash
 # site status subcommand
 
-package="butler site status"
-
+PACKAGE="butler site status"
 DIR="$DIR/bin"
 
 print_usage() {
   echo "Show the status of a site or all sites"
   echo " " echo "SYNOPSIS:"
   echo " "
-  echo "$package NAME [OPTION]"
+  echo "$PACKAGE NAME [OPTION]"
   echo " "
   echo "  -h, --help          print this help"
 }
