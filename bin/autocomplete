@@ -1,8 +1,8 @@
-#!bin/sh
+#!/bin/sh
 # Autocomplete for butler
 
 DIR="$(dirname "$(readlink -f "$0")")"
-[ -f "$DIR/../.env" ] || return 0;
+[ -f "$DIR/../.env" ] || return 0
 export $(cat "$DIR/../.env" | xargs)
 TEMPLATES="$DIR/../templates"
 
@@ -14,11 +14,18 @@ _butler_autocomplete()
     prev=${COMP_WORDS[COMP_CWORD-2]}
 
     case ${COMP_CWORD} in
-        1) COMPREPLY=() ;;
+        1)
+            COMPREPLY=()
+            ;;
         2)
             case ${cur} in
                 up|down|restart)
-                    COMPREPLY=($(compgen -W "$(ls $BUTLER_SITES_DIR/)"))
+                    COMPREPLY=($(compgen -W "$(ls "$BUTLER_SITES_DIR"/)"))
+                    ;;
+                sftp)
+                    # Autocomplete flags for the sftp helper
+                    COMPREPLY=($(compgen -W "-k --key -u --upload -p --port -w --password -h --help" -- "${COMP_WORDS[COMP_CWORD]}"))
+                    ;;
             esac
             ;;
         3)
@@ -26,11 +33,22 @@ _butler_autocomplete()
                 site)
                     case ${cur} in
                         cd)
-                            COMPREPLY=($(compgen -W "$(ls $BUTLER_SITES_DIR/)"))
+                            COMPREPLY=($(compgen -W "$(ls "$BUTLER_SITES_DIR"/)"))
+                            ;;
                     esac
+                    ;;
+                sftp)
+                    case ${COMP_WORDS[COMP_CWORD-1]} in
+                        -k|--key|-u|--upload)
+                            COMPREPLY=($(compgen -f -- "${COMP_WORDS[COMP_CWORD]}"))
+                            ;;
+                    esac
+                    ;;
             esac
             ;;
-        *) COMPREPLY=() ;;
+        *)
+            COMPREPLY=()
+            ;;
     esac
 }
 

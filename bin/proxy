@@ -4,8 +4,8 @@
 PACKAGE="butler proxy"
 DIR="$DIR/bin"
 SCRIPTS_DIR="$DIR/scripts"
-
 COMMON=$DIR/common
+
 . $COMMON/colours.sh
 
 site="$1"

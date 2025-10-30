@@ -4,6 +4,10 @@
 set -euo pipefail
 
 PACKAGE="butler sftp"
+DIR="$DIR/bin"
+COMMON=$DIR/common
+
+. $COMMON/absolute_path.sh
 
 # Defaults
 KEY_PATH="$HOME/.ssh"
@@ -77,6 +81,10 @@ $HELP && print_usage && exit 0
 
 # Validate upload dir
 mkdir -p "$UPLOAD_PATH"
+
+# Ensure paths are absolute
+KEY_PATH=$(absolute_path "$KEY_PATH")
+UPLOAD_PATH=$(absolute_path "$UPLOAD_PATH")
 
 # Handle keys
 KEY_MOUNT_OPT=""
