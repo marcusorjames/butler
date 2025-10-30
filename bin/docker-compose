@@ -1,14 +1,15 @@
 #!/bin/sh
-# Docker compose proxy
+# Docker compose passthrough
 
-PACKAGE="butler"
+PACKAGE="butler docker-compose"
 
 DIR="$DIR/bin"
 COMMON=$DIR/common
+
 . $COMMON/colours.sh
 
 print_usage() {
-  echo "Docker Compose proxy"
+  echo "Docker Compose passthrough"
   echo " "
   echo "SYNOPSIS:"
   echo " "
@@ -46,4 +47,3 @@ if [ -f "$site_dir/scripts/$cmd" ]; then
 fi
 
 docker compose --project-directory $site_dir $cmd "$@"
-
