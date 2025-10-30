@@ -1,7 +1,7 @@
 #!/bin/sh
 # mysql
 
-PACKAGE="butler"
+PACKAGE="butler mysql"
 DIR="$DIR/bin"
 
 # Ensure we are not in a docker directory as this breaks --project-directory

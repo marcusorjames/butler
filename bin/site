@@ -1,8 +1,7 @@
 #!/bin/bash
 # site subcommand
 
-package="butler site"
-
+PACKAGE="butler site"
 DIR="$DIR/bin"
 
 print_usage() {
@@ -10,7 +9,7 @@ print_usage() {
   echo " "
   echo "SYNOPSIS:"
   echo " "
-  echo "$package COMMAND ..."
+  echo "$PACKAGE COMMAND ..."
   echo " "
   echo -e "${Yellow}Site Management:"
   echo -e ""

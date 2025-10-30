@@ -1,0 +1,115 @@
+#!/bin/bash
+# sftp
+
+set -euo pipefail
+
+PACKAGE="butler sftp"
+
+# Defaults
+KEY_PATH="$HOME/.ssh"
+UPLOAD_PATH="$HOME/ftp"
+EXTERNAL_PORT=2222
+PASSWORD=""
+HELP=false
+
+# Parse args
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -k|--key)
+      KEY_PATH="$2"
+      shift 2
+      ;;
+    -u|--upload)
+      UPLOAD_PATH="$2"
+      shift 2
+      ;;
+    -p|--port)
+      EXTERNAL_PORT="$2"
+      shift 2
+      ;;
+    -w|--password)
+      # If next arg is missing or starts with '-', prompt instead of reading it directly
+      if [[ $# -ge 2 && ! "$2" =~ ^- ]]; then
+        PASSWORD="$2"
+        shift 2
+      else
+        read -s -p "Password: " PASSWORD
+        echo ""
+        shift
+      fi
+      ;;
+    -h|--help)
+      HELP=true
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      exit 1
+      ;;
+  esac
+done
+
+print_usage() {
+  echo ""
+  echo "Run an ephemeral SFTP server"
+  echo ""
+  echo "USAGE:"
+  echo "  $(basename "$0") [options]"
+  echo ""
+  echo "OPTIONS:"
+  echo "  -k, --key PATH        Path to SSH key file or directory (default: \$HOME/.ssh)"
+  echo "  -u, --upload PATH     Upload directory (default: \$HOME/ftp)"
+  echo "  -p, --port PORT       External port to expose (default: 2222)"
+  echo "  -w, --password PASS   Password for SFTP user (empty for key-only)"
+  echo "  -h, --help            Show this help message"
+  echo ""
+  echo "NOTES:"
+  echo "  - If no valid key path is found, the container runs password-only."
+  echo "  - Press Ctrl+C to stop; container is removed automatically."
+  echo ""
+}
+
+$HELP && print_usage && exit 0
+
+# Validate upload dir
+mkdir -p "$UPLOAD_PATH"
+
+# Handle keys
+KEY_MOUNT_OPT=""
+if [ -d "$KEY_PATH" ]; then
+  KEY_MOUNT_OPT="-v ${KEY_PATH}:/home/user/.ssh/keys:ro"
+elif [ -f "$KEY_PATH" ]; then
+  BASENAME=$(basename "$KEY_PATH")
+  KEY_MOUNT_OPT="-v ${KEY_PATH}:/home/user/.ssh/keys/${BASENAME}:ro"
+else
+  echo "No valid key path found, running password-only mode."
+  KEY_MOUNT_OPT=""
+fi
+
+# Build user spec
+USER_SPEC="user:${PASSWORD}:1001"
+
+# Run container
+echo "Starting SFTP server..."
+echo "  Key Path:     ${KEY_PATH:-<none>}"
+echo "  Upload Path:  $UPLOAD_PATH"
+echo "  Port:         $EXTERNAL_PORT"
+echo "  Password:     ${PASSWORD:+<set>}${PASSWORD:+" (hidden)"}"
+
+# Divider for clarity before logs
+echo ""
+echo "------------------------------------------------------------"
+echo "Server Started (press Ctrl+C to stop)"
+echo "------------------------------------------------------------"
+echo ""
+
+docker run -it --rm --init \
+  $KEY_MOUNT_OPT \
+  -v "${UPLOAD_PATH}:/home/user/upload" \
+  -p "${EXTERNAL_PORT}:22" \
+  atmoz/sftp \
+  "$USER_SPEC"

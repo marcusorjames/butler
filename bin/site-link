@@ -1,15 +1,14 @@
 #!/bin/bash
 # site status subcommand
 
-package="butler site link"
-
+PACKAGE="butler site link"
 DIR="$DIR/bin"
 
 print_usage() {
   echo "Link a site or all sites"
   echo " " echo "SYNOPSIS:"
   echo " "
-  echo "$package NAME [OPTION]"
+  echo "$PACKAGE NAME [OPTION]"
   echo " "
   echo "  -h, --help         print this help"
   echo "  -f, --fix          auto fix any broken links"
