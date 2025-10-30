@@ -1,7 +1,7 @@
 #!/bin/sh
 # mysql log
 
-PACKAGE="butler"
+PACKAGE="butler mysql log"
 
 cleanup() {
   butler mysql -e 'SET global general_log=off;'

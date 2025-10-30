@@ -1,8 +1,7 @@
 #!/bin/sh
-# Docker compose proxy
+# Docker run
 
 PACKAGE="butler run"
-
 SCRIPTS_DIR="$DIR/scripts"
 DIR="$DIR/bin"
 
@@ -42,4 +41,3 @@ elif [ -f $cmd ]; then
 else
   echo -e "${CError}Error: $site_cmd or $cmd doesn't exists" && exit 1
 fi
-

@@ -1,7 +1,7 @@
 #!/bin/bash
 # site add subcommand
 
-package="butler site add"
+PACKAGE="butler site add"
 
 . $COMMON/fzfread.sh
 . $COMMON/colours.sh
@@ -11,7 +11,7 @@ print_usage() {
   echo "Add a new site"
   echo " " echo "SYNOPSIS:"
   echo " "
-  echo "$package NAME [OPTION]"
+  echo "$PACKAGE NAME [OPTION]"
   echo " "
   echo "  -h, --help          print this help"
   echo "  -c, --context       project context e.g. personal"

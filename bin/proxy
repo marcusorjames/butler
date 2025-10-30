@@ -1,10 +1,9 @@
 #!/bin/sh
-# Docker compose proxy
+# proxy
 
-PACKAGE="butler run"
-
-SCRIPTS_DIR="$DIR/scripts"
+PACKAGE="butler proxy"
 DIR="$DIR/bin"
+SCRIPTS_DIR="$DIR/scripts"
 
 COMMON=$DIR/common
 . $COMMON/colours.sh
@@ -26,7 +25,7 @@ print_usage() {
   echo "Proxy site through ngrok"
   echo "SYNOPSIS:"
   echo " "
-  echo "$PACKAGE proxy... [options]"
+  echo "$PACKAGE [options]"
   echo ""
   echo "COMMAND / Options:"
   echo "-s|--site Override site"
