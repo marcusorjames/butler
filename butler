@@ -42,6 +42,7 @@ print_usage()
   echo -e "${Green}php            ${Color_Off}Execute php on container"
   echo -e "${Green}exect          ${Color_Off}Execute command on container TTY"
   echo -e "${Green}proxy          ${Color_Off}Proxy site through ngrok"
+  echo -e "${Green}ftp            ${Color_Off}Run ftp server"
   echo -e "${Green}sftp           ${Color_Off}Run sftp server"
   echo -e "${Green}run            ${Color_Off}Run a custom script"
   echo -e "${Green}shell          ${Color_Off}Start a shell session within the application container"
@@ -71,6 +72,7 @@ case $function in
     'php') . $DIR/bin/docker-compose "exec php php" "$CURRENT_PROJ" "$@" ;;
     'exect') . $DIR/bin/docker-compose "exec -T php" "$CURRENT_PROJ" "$@" ;;
     'proxy') . $DIR/bin/proxy "$CURRENT_PROJ" "$@" ;;
+    'ftp') . $DIR/bin/ftp "$@" ;;
     'sftp') . $DIR/bin/sftp "$@" ;;
     'run') . $DIR/bin/run "$@" ;;
     'shell') . $DIR/bin/docker-compose "exec php bash" "$CURRENT_PROJ" "$@" ;;

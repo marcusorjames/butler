@@ -11,9 +11,8 @@ COMMON=$DIR/common
 . "$COMMON/absolute_path.sh"
 
 # Defaults
-KEY_PATH="$HOME/.ssh"
 UPLOAD_PATH="$HOME/ftp"
-EXTERNAL_PORT=2222
+EXTERNAL_PORT="20-21"
 PASSWORD=""
 HELP=false
 
@@ -72,13 +71,12 @@ done
 
 print_usage() {
   echo ""
-  echo "Run an ephemeral SFTP server"
+  echo "Run an ephemeral FTP server"
   echo ""
   echo "USAGE:"
   echo "  $(basename "$0") [options]"
   echo ""
   echo "OPTIONS:"
-  echo "  -k, --key PATH        Path to SSH key file or directory (default: \$HOME/.ssh)"
   echo "  -u, --upload PATH     Upload directory (default: \$HOME/ftp)"
   echo "  -p, --port PORT       External port to expose (default: 2222)"
   echo "  -w, --password PASS   Password for SFTP user (empty for key-only)"
@@ -96,26 +94,10 @@ $HELP && print_usage && exit 0
 mkdir -p "$UPLOAD_PATH"
 
 # Ensure paths are absolute
-KEY_PATH=$(absolute_path "$KEY_PATH")
 UPLOAD_PATH=$(absolute_path "$UPLOAD_PATH")
 
-# Handle keys
-KEY_MOUNT_OPT=""
-if [ -d "$KEY_PATH" ]; then
-  KEY_MOUNT_OPT="-v ${KEY_PATH}:/home/user/.ssh/keys:ro"
-elif [ -f "$KEY_PATH" ]; then
-  BASENAME=$(basename "$KEY_PATH")
-  KEY_MOUNT_OPT="-v ${KEY_PATH}:/home/user/.ssh/keys/${BASENAME}:ro"
-else
-  echo "No valid key path found, running password-only mode."
-fi
-
-# Build user spec
-USER_SPEC="user:${PASSWORD}:${UID}"
-
 # Run container
-echo "Starting SFTP server..."
-echo "  Key Path:     ${KEY_PATH:-<none>}"
+echo "Starting FTP server..."
 echo "  Upload Path:  $UPLOAD_PATH"
 echo "  Port:         $EXTERNAL_PORT"
 echo "  Password:     ${PASSWORD:+<set>}${PASSWORD:+" (hidden)"}"
@@ -125,13 +107,15 @@ echo "Server Started (press Ctrl+C to stop)"
 echo "------------------------------------------------------------"
 echo ""
 
-docker network inspect sftp >/dev/null 2>&1 || docker network create sftp
+docker network inspect ftp >/dev/null 2>&1 || docker network create ftp
 
 docker run -it --rm --init \
-  $KEY_MOUNT_OPT \
-  -v "${UPLOAD_PATH}:/home/user/upload" \
-  -p "${EXTERNAL_PORT}:22" \
-  --name sftp \
-  --network sftp \
-  atmoz/sftp \
-  "$USER_SPEC" "$USER_SPEC"
+	--env FTP_PASS="${PASSWORD}" \
+	--env FTP_USER=user \
+	--name ftp-server \
+	--publish "${EXTERNAL_PORT}:20-21/tcp" \
+	--publish 40000-40009:40000-40009/tcp \
+	--volume "${UPLOAD_PATH}:/home/user" \
+    --name ftp \
+    --network ftp \
+	garethflowers/ftp-server
