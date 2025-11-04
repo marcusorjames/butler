@@ -43,7 +43,7 @@ while [[ $# -gt 0 ]]; do
       EXTERNAL_PORT=$(require_arg "$1" "${2-}")
       shift 2
       ;;
-    -w|--password)
+    -P|--password)
       if [[ $# -ge 2 && ! "$2" =~ ^- ]]; then
         PASSWORD="$2"
         shift 2
@@ -78,7 +78,7 @@ print_usage() {
   echo ""
   echo "OPTIONS:"
   echo "  -u, --upload PATH     Upload directory (default: \$HOME/ftp)"
-  echo "  -p, --port PORT       External port to expose (default: 2222)"
+  echo "  -P, --port PORT       External port to expose (default: 2222)"
   echo "  -w, --password PASS   Password for SFTP user (empty for key-only)"
   echo "  -h, --help            Show this help message"
   echo ""
