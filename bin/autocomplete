@@ -24,7 +24,11 @@ _butler_autocomplete()
                     ;;
                 sftp)
                     # Autocomplete flags for the sftp helper
-                    COMPREPLY=($(compgen -W "-k --key -u --upload -p --port -w --password -h --help" -- "${COMP_WORDS[COMP_CWORD]}"))
+                    COMPREPLY=($(compgen -W "-k --key -u --upload -p --port -P --password -h --help" -- "${COMP_WORDS[COMP_CWORD]}"))
+                    ;;
+                ftp)
+                    # Autocomplete flags for the sftp helper
+                    COMPREPLY=($(compgen -W "-u --upload -p --port -P --password -h --help" -- "${COMP_WORDS[COMP_CWORD]}"))
                     ;;
             esac
             ;;
