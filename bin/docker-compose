@@ -7,6 +7,7 @@ DIR="$DIR/bin"
 COMMON=$DIR/common
 
 . $COMMON/colours.sh
+. $COMMON/functions.sh
 
 print_usage() {
   echo "Docker Compose passthrough"
@@ -19,17 +20,14 @@ print_usage() {
   echo "See --help inherited from docker-compose"
 }
 
-check_dir_exists() {
-  [ ! -d $1 ] && echo -e "${CError}Error: $2 doesn't exists" && exit 1
-}
-
 [ ! "$#" -gt 0 ] && print_usage && exit 1
 
 cmd="$1"
 site="$2"
-site_dir="$SITES_DIR/$site"
 
-check_dir_exists $site_dir 'Site'
+if ! site_dir="$(get_site_dir "$site")"; then
+  die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
+fi
 
 shift 2
 

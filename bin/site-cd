@@ -6,6 +6,7 @@ DIR=$(readlink -f "$(dirname "$(readlink -f "$0")")/../")
 COMMON=$DIR/bin/common
 
 . $COMMON/setup.sh
+. $COMMON/functions.sh
 
 setup
 
@@ -17,20 +18,15 @@ print_usage() {
   echo "$PACKAGE NAME"
 }
 
-check_dir_exists() {
-  [ ! -d $1 ] && echo -e "${CError}Error: $site doesn't exists" && exit 1
-}
-
-
 main() {
   [ ! "$#" -gt 0 ] && print_usage && exit 1
 
   site="$1"
   shift
 
-  site_dir="$SITES_DIR/$site"
-
-  check_dir_exists $site_dir
+  if ! site_dir="$(get_site_dir "$site")"; then
+    die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
+  fi
 
   cd $site_dir
   $SHELL
