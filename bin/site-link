@@ -72,7 +72,8 @@ main() {
         fixed=true
         rm $app_path
       else
-        echo -e "${CError}ERROR (link exists but is broken)${Color_Off}" && return 1
+        target=$(readlink "${app_path}")
+        echo -e "${CError}ERROR (broken link: \`${target}\`, use --fix to fix) ${Color_Off}" && return 1
       fi
     fi
 
