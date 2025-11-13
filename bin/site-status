@@ -2,7 +2,9 @@
 # site status subcommand
 
 PACKAGE="butler site status"
-DIR="$DIR/bin"
+COMMON=$DIR/common
+
+. $COMMON/functions.sh
 
 print_usage() {
   echo "Show the status of a site or all sites"
@@ -11,12 +13,7 @@ print_usage() {
   echo "$PACKAGE NAME [OPTION]"
   echo " "
   echo "  -h, --help          print this help"
-}
-
-check_site_exists() {
-  site_path="$SITES_DIR/$1"
-  [ ! -d $site_path ] && echo -ne "${CError}Error:${Color_Off} Site ${CWarn}$1" \
-   && echo -e " ${Color_Off}doesn't exist" && exit 1
+  echo "  -v, --verbose       print site directory"
 }
 
 check_app_exists() {
@@ -27,14 +24,21 @@ check_app_exists() {
 
 main() {
   help=false
+  verbose=false
+
+  args=()
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      -h | --help )    help=true; shift ;;
-      -- ) shift; break ;;
-      * ) break ;;
+      -h|--help)    help=true ;;
+      -v|--verbose) verbose=true ;;
+      --)           shift; break ;;
+      *)            args+=("$1") ;;
     esac
+    shift
   done
+
+  set -- "${args[@]}"
 
   $help && print_usage && exit 0
 
@@ -44,18 +48,19 @@ main() {
 
   [ -z $1 ] && echo -e "${CWarn}All sites is not yet implemented" && exit 0
 
-  check_site_exists $site
+  if ! site_dir="$(get_site_dir "$site")"; then
+    die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
+  fi
+
 
   echo -en "$site "
   if check_app_exists $site; then
-    echo -e "${CSuccess}OK"
+    echo -e "${CSuccess}OK${Color_Off}${verbose:+ [$site_dir]}"
   else
     echo -e "${CError}ERROR${Color_Off}"
     echo -en "Run ${Black}${On_White}butler site link <site>${Color_Off} " \
       && echo "to link the project directory"
   fi
-
-
 }
 
 main "$@"
