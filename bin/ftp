@@ -8,7 +8,7 @@ PACKAGE="butler sftp"
 DIR="$DIR/bin"
 COMMON=$DIR/common
 
-. "$COMMON/absolute_path.sh"
+. "$COMMON/functions.sh"
 
 # Defaults
 UPLOAD_PATH="$HOME/ftp"

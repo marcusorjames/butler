@@ -1,8 +1,11 @@
 #!/bin/bash
 # site status subcommand
+# TODO: Add ability to specify directory e.g. local default should just be Sites -- configurable
 
 PACKAGE="butler site link"
-DIR="$DIR/bin"
+COMMON=$DIR/common
+
+. $COMMON/functions.sh
 
 print_usage() {
   echo "Link a site or all sites"
@@ -12,12 +15,6 @@ print_usage() {
   echo " "
   echo "  -h, --help         print this help"
   echo "  -f, --fix          auto fix any broken links"
-}
-
-check_site_exists() {
-  site_path="$SITES_DIR/$1"
-  [ ! -d $site_path ] && echo -ne "${CError}Error:${Color_Off} Site ${CWarn}$1" \
-   && echo -e " ${Color_Off}doesn't exist" && exit 1
 }
 
 check_project_exists() {
@@ -59,7 +56,10 @@ main() {
 
   [ -z $site ] && echo -e "${CWarn}All sites is not yet implemented" && exit 0
 
-  check_site_exists $site
+  if ! site_dir="$(get_site_dir "$site")"; then
+    die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
+  fi
+
   check_project_exists $site
 
   echo -en "$site "
