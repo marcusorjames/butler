@@ -22,12 +22,13 @@ _butler_autocomplete()
                 up|down|restart)
                     COMPREPLY=($(compgen -W "$(ls "$BUTLER_SITES_DIR"/)"))
                     ;;
+                php|exec)
+                    COMPREPLY=($(compgen -f -- "${COMP_WORDS[COMP_CWORD]}"))
+                    ;;
                 sftp)
-                    # Autocomplete flags for the sftp helper
                     COMPREPLY=($(compgen -W "-k --key -u --upload -p --port -P --password -h --help" -- "${COMP_WORDS[COMP_CWORD]}"))
                     ;;
                 ftp)
-                    # Autocomplete flags for the sftp helper
                     COMPREPLY=($(compgen -W "-u --upload -p --port -P --password -h --help" -- "${COMP_WORDS[COMP_CWORD]}"))
                     ;;
             esac
