@@ -18,7 +18,9 @@ shift
 argRem="$@"
 [ -z "${function}" ] || argRem="$function $argRem";
 
+mysql_password="${MYSQL_PASSWORD:-secret}"
+
 case $function in
     'log') . $DIR/mysql-log ;;
-    *) docker compose --project-directory "$DIR/../common/mysql" exec mysql mysql --password="$MYSQL_PASSWORD" "$argRem" ;;
+    *) docker compose --project-directory "$DIR/../common/mysql" exec mysql mariadb --password="$MYSQL_PASSWORD" "$argRem" ;;
 esac
