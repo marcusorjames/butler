@@ -23,13 +23,20 @@ print_usage() {
 [ ! "$#" -gt 0 ] && print_usage && exit 1
 
 cmd="$1"
-site="$2"
+shift
+
+# Resolve site: non-flag arg = explicit site, flag or empty = infer from CWD
+case "$1" in
+  -*|"") site="$(basename $PWD)" ;;
+  *)     site="$1"; shift ;;
+esac
 
 if ! site_dir="$(get_site_dir "$site")"; then
   die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
 fi
 
-shift 2
+export BUTLER_PROJECT="$site"
+init_site "$site_dir"
 
 # Ensure we are not in a docker directory as this breaks --project-directory
 # docker-compose commands!
@@ -44,4 +51,4 @@ if [ -f "$site_dir/scripts/$cmd" ]; then
   . "$site_dir/scripts/$cmd"
 fi
 
-docker compose --project-directory $site_dir $cmd "$@"
+docker compose --project-directory "$site_dir" $cmd "$@"
