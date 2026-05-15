@@ -5,10 +5,10 @@ PACKAGE="butler site cd"
 DIR=$(readlink -f "$(dirname "$(readlink -f "$0")")/../")
 COMMON=$DIR/bin/common
 
-. $COMMON/setup.sh
+. $COMMON/init.sh
 . $COMMON/functions.sh
 
-setup
+init
 
 print_usage() {
   echo "Change directory into site"
