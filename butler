@@ -5,9 +5,11 @@
 package="butler"
 DIR="$(dirname "$(readlink -f "$0")")"
 COMMON=$DIR/bin/common
-. $COMMON/setup.sh
+. $COMMON/init.sh
 . $COMMON/colours.sh
-CURRENT_PROJ="$(basename $PWD)"
+. $COMMON/functions.sh
+
+export BUTLER_PROJECT="${BUTLER_PROJECT:-$(basename $PWD)}"
 
 # PATH any common binarys
 export PATH="$PATH:$DIR/bin/common"
@@ -52,7 +54,7 @@ print_usage()
   echo -e "${Green}docker-compose ${Color_Off}Docker composer passthrough"
 }
 
-setup
+init
 
 [ ! "$#" -gt 0 ] && print_usage && exit 1
 
@@ -68,15 +70,15 @@ case $function in
     'up') . $DIR/bin/docker-compose up "$@" ;;
     'down') . $DIR/bin/docker-compose down "$@" ;;
     'restart') . $DIR/bin/docker-compose restart "$@" ;;
-    'exec') . $DIR/bin/docker-compose "exec php" "$CURRENT_PROJ" "$@" ;;
-    'php') . $DIR/bin/docker-compose "exec php php" "$CURRENT_PROJ" "$@" ;;
-    'exect') . $DIR/bin/docker-compose "exec -T php" "$CURRENT_PROJ" "$@" ;;
-    'proxy') . $DIR/bin/proxy "$CURRENT_PROJ" "$@" ;;
+    'exec') . $DIR/bin/docker-compose "exec php" "$@" ;;
+    'php') . $DIR/bin/docker-compose "exec php php" "$@" ;;
+    'exect') . $DIR/bin/docker-compose "exec -T php" "$@" ;;
+    'proxy') . $DIR/bin/proxy "$BUTLER_PROJECT" "$@" ;;
     'ftp') . $DIR/bin/ftp "$@" ;;
     'sftp') . $DIR/bin/sftp "$@" ;;
     'run') . $DIR/bin/run "$@" ;;
-    'shell') . $DIR/bin/docker-compose "exec php bash" "$CURRENT_PROJ" "$@" ;;
-    'composer') . $DIR/bin/docker-compose "exec -e COMPOSER_MEMORY_LIMIT=-1 php php composer.phar" "$CURRENT_PROJ" "$@" ;;
+    'shell') . $DIR/bin/docker-compose "exec php bash" "$@" ;;
+    'composer') . $DIR/bin/docker-compose "exec -e COMPOSER_MEMORY_LIMIT=-1 php php composer.phar" "$@" ;;
     'mysql') . $DIR/bin/mysql ;;
     'docker-compose') . $DIR/bin/docker-compose ;;
     *) print_usage ; exit 1;;
