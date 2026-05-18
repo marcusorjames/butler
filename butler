@@ -3,7 +3,9 @@
 # Manage multiple PHP versions, automatically serve any folder
 
 package="butler"
-DIR="$(dirname "$(readlink -f "$0")")"
+SOURCE="$0"
+while [ -L "$SOURCE" ]; do SOURCE="$(readlink "$SOURCE")"; done
+DIR="$(cd "$(dirname "$SOURCE")" && pwd)"
 COMMON=$DIR/bin/common
 . $COMMON/init.sh
 . $COMMON/colours.sh
