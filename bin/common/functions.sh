@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 absolute_path() {
     local path="$1"
@@ -12,17 +12,21 @@ absolute_path() {
 }
 
 get_site_dir() {
-  local site_name="$1"
+  get_dir "$SITES_DIR" "$1" 1
+}
 
-  for dir in "${SITES_DIR[@]}"; do
-    local candidate="$dir/$site_name"
-    if [ -d "$candidate" ]; then
-      echo "$candidate"
-      return 0
-    fi
-  done
+get_project_dir() {
+  get_dir "$PROJECTS_DIR" "$1" 2
+}
 
-  return 1  # not found
+get_dir() {
+  local base_dir="$1"
+  local name="$2"
+  local depth="${3:-1}"
+  local result
+  result=$(find "$base_dir" -maxdepth "$depth" -name "$name" -type d 2>/dev/null | head -1)
+  [ -n "$result" ] && echo "$result" && return 0
+  return 1
 }
 
 site_exists() {
