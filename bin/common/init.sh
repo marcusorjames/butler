@@ -1,7 +1,7 @@
 init()
 {
   if [ -f "$DIR/.env" ]; then
-    export $(cat "$DIR/.env" | xargs)
+    export $(cat "$DIR/.env" | tr -d '\r' | xargs)
   else
     echo "No .env file found" && exit 0;
   fi
@@ -39,7 +39,7 @@ init_site()
 
   # Per-project env overrides, e.g. BUTLER_PROJECT, BUTLER_PROJECT_DIR
   if [ -f "${site_dir}/.env" ]; then
-    export $(cat "${site_dir}/.env" | xargs)
+    export $(cat "${site_dir}/.env" | tr -d '\r' | xargs)
   fi
 
   [ -n "$BUTLER_PROJECT_DIR" ] && CURRENT_PROJ_DIR="$BUTLER_PROJECT_DIR"
