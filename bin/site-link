@@ -1,12 +1,11 @@
 #!/bin/bash
-# site status subcommand
-# TODO: Add ability to specify directory e.g. local default should just be Sites -- configurable
+# site link subcommand
 
 PACKAGE="butler site link"
 COMMON=$DIR/common
 
-. $COMMON/functions.sh
-. $COMMON/statusline.sh
+. "$COMMON/functions.sh"
+. "$COMMON/statusline.sh"
 
 print_usage() {
   echo "Link a site or all sites"
@@ -19,28 +18,76 @@ print_usage() {
   echo "  -f, --fix          auto fix any broken links"
 }
 
-check_site_exists() {
-  if ! site_dir="$(get_site_dir "$1")"; then
-    die_with_error "Site ${CWarn}$1${Color_Off} doesn't exist"
+link_single() {
+  local site="$1" site_dir="$2" project_path="$3" fix="$4"
+  local app_path="$site_dir/app"
+
+  if [ -L "$app_path" ] && [ -e "$app_path" ]; then
+    statusBadge "$site" "SKIP" "$CWarn" "already linked"
+    return 0
+  fi
+
+  local fixed=false
+  if [ -L "$app_path" ] && [ ! -e "$app_path" ]; then
+    if $fix; then
+      fixed=true
+      rm "$app_path"
+    else
+      local target
+      target=$(readlink "$app_path")
+      statusBadge "$site" "ERROR" "$CError" "broken link: \`${target}\`, use --fix to fix"
+      return 1
+    fi
+  fi
+
+  if ln -s "$project_path" "$app_path"; then
+    if $fixed; then
+      statusBadge "$site" "FIXED" "$CWarn"
+    else
+      statusBadge "$site" "OK"
+    fi
+  else
+    statusBadge "$site" "ERROR" "$CError" "failed to link site"
   fi
 }
 
-check_project_exists() {
-  if ! project_path="$(get_project_dir "$1")"; then
-    die_with_error "Project ${CWarn}$1${Color_Off} doesn't exist"
+link_multi() {
+  local site_dir="$1" fix="$2"
+  local app_path="$site_dir/app"
+
+  if [ -L "$app_path" ]; then
+    statusBadge "$site" "ERROR" "$CError" "app is a symlink — run 'butler site convert $site' first"
+    return 1
   fi
-}
 
-check_app_exists() {
-  app_path="$SITES_DIR/$1/app"
-  [ -h $app_path ] && return 0
-  return 1
-}
+  mkdir -p "$app_path"
 
-check_app_is_valid() {
-  app_path="$SITES_DIR/$1/app"
-  [ -e $app_path ] && return 0
-  return 1
+  local p proj_path proj_link
+  for p in ${BUTLER_PROJECTS//,/ }; do
+    proj_link="$app_path/$p"
+
+    if ! proj_path="$(get_project_dir "$p")"; then
+      statusBadge "$p" "ERROR" "$CError" "project not found in $PROJECTS_DIR"
+      continue
+    fi
+
+    if [ -L "$proj_link" ] && [ -e "$proj_link" ]; then
+      statusBadge "$p" "SKIP" "$CWarn" "already linked"
+    elif [ -L "$proj_link" ] && [ ! -e "$proj_link" ]; then
+      if $fix; then
+        rm "$proj_link"
+        ln -s "$proj_path" "$proj_link"
+        statusBadge "$p" "FIXED" "$CWarn"
+      else
+        local target
+        target=$(readlink "$proj_link")
+        statusBadge "$p" "ERROR" "$CError" "broken link: \`${target}\`, use --fix to fix"
+      fi
+    else
+      ln -s "$proj_path" "$proj_link"
+      statusBadge "$p" "OK"
+    fi
+  done
 }
 
 main() {
@@ -51,48 +98,46 @@ main() {
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      -h | --help )   help=true; shift ;;
-      -f | --fix )    fix=true; shift ;;
-      -- ) shift; break ;;
-      * ) break ;;
+    -h | --help)
+      help=true
+      shift
+      ;;
+    -f | --fix)
+      fix=true
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *) break ;;
     esac
   done
 
   $help && print_usage && exit 0
 
-  template_root="$DIR/../templates"
+  [ -z "$site" ] && echo -e "${CWarn}All sites is not yet implemented${Color_Off}" && exit 0
 
-  [ -z $site ] && echo -e "${CWarn}All sites is not yet implemented${Color_Off}" && exit 0
-
-  check_site_exists $site
-  check_project_exists $site
-
-  if check_app_exists $site && check_app_is_valid $site; then
-    statusBadge "$site" "SKIP" "$CWarn" "already linked"
-  else
-    fixed=false
-    if check_app_exists $site && ! check_app_is_valid $site; then
-      if $fix; then
-        fixed=true
-        rm $app_path
-      else
-        target=$(readlink "${app_path}")
-        statusBadge "$site" "ERROR" "$CError" "broken link: \`${target}\`, use --fix to fix" && return 1
-      fi
-    fi
-
-    if ln -s $project_path $app_path; then
-      if $fixed; then
-        statusBadge "$site" "FIXED" "$CWarn"
-      else
-        statusBadge "$site" "OK"
-      fi
-    else
-      statusBadge "$site" "ERROR" "$CError" "failed to link site"
-    fi
+  if ! site_dir="$(get_site_dir "$site")"; then
+    die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
   fi
 
+  # Load site env to pick up BUTLER_PROJECTS if set
+  BUTLER_PROJECTS=""
+  if [ -f "$site_dir/.env" ]; then
+    set -a
+    . "$site_dir/.env"
+    set +a
+  fi
 
+  if [ -n "$BUTLER_PROJECTS" ]; then
+    link_multi "$site_dir" "$fix"
+  else
+    if ! project_path="$(get_project_dir "$site")"; then
+      die_with_error "Project ${CWarn}$site${Color_Off} doesn't exist"
+    fi
+    link_single "$site" "$site_dir" "$project_path" "$fix"
+  fi
 }
 
 main "$@"

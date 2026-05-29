@@ -1,0 +1,3 @@
+source-path=SCRIPTDIR
+external-sources=true
+disable=SC1091,SC2154  # dynamic source paths ($COMMON, $DIR) can't be resolved statically

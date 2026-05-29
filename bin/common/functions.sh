@@ -1,14 +1,16 @@
 #!/bin/bash
 
+. "${COMMON}/colours.sh"
+
 absolute_path() {
-    local path="$1"
-    # If it already starts with '/', it’s absolute
-    if [[ "$path" = /* ]]; then
-        echo "$path"
-    else
-        # Otherwise, expand relative to current directory
-        echo "$(pwd)/$path"
-    fi
+  local path="$1"
+  # If it already starts with '/', it’s absolute
+  if [[ "$path" = /* ]]; then
+    echo "$path"
+  else
+    # Otherwise, expand relative to current directory
+    echo "$(pwd)/$path"
+  fi
 }
 
 get_site_dir() {

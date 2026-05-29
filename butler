@@ -7,53 +7,54 @@ SOURCE="$0"
 while [ -L "$SOURCE" ]; do SOURCE="$(readlink "$SOURCE")"; done
 DIR="$(cd "$(dirname "$SOURCE")" && pwd)"
 COMMON=$DIR/bin/common
-. $COMMON/init.sh
-. $COMMON/colours.sh
-. $COMMON/functions.sh
+. "$COMMON/init.sh"
+. "$COMMON/colours.sh"
+. "$COMMON/functions.sh"
 
-export BUTLER_PROJECT="${BUTLER_PROJECT:-$(basename $PWD)}"
+export BUTLER_PROJECT="${BUTLER_PROJECT:-$(basename "$PWD")}"
 
 # PATH any common binarys
 export PATH="$PATH:$DIR/bin/common"
 
-print_usage()
-{
+print_usage() {
   echo "butler version 0.1.0 - your friendly dev stack helper"
   echo " "
   echo "SYNOPSIS:"
   echo " "
-  echo "$package COMMAND ..."
+  echo "$package COMMAND [SITE] ..."
   echo " "
-  echo -e "${Blue}Commands: "
+  echo -e "${Blue}Commands:"
   echo " "
-  echo -e "${Yellow}System:"
+  echo -e "${Yellow}Management:"
   echo -e ""
-  echo -e "${Green}install    ${Color_Off}Install butler"
+  echo -e "${Green}install              ${Color_Off}Install butler"
   echo -e ""
   echo -e "${Yellow}Site Management:"
   echo -e ""
-  echo -e "${Green}site add   ${Color_Off}Add a new site"
-  echo -e "${Green}site cd   ${Color_Off}Change Directory to site"
-  echo -e "${Green}site status   ${Color_Off}Show status of site(s)"
-  echo -e "${Green}site link   ${Color_Off}Link site(s)"
+  echo -e "${Green}site add             ${Color_Off}Add a new site"
+  echo -e "${Green}site cd              ${Color_Off}Change directory to site"
+  echo -e "${Green}site status          ${Color_Off}Show status of site(s)"
+  echo -e "${Green}site link            ${Color_Off}Link site(s)"
   echo -e ""
-  echo -e "${Yellow}docker-compose Commands"
+  echo -e "${Yellow}Site Commands ${Color_Off}(butler COMMAND [SITE] ...):"
   echo -e ""
-  echo -e "${Green}up             ${Color_Off}Create and start container stack"
-  echo -e "${Green}down           ${Color_Off}Stop container stack"
-  echo -e "${Green}restart        ${Color_Off}Restart container stack"
-  echo -e "${Green}exec           ${Color_Off}Execute command on container"
-  echo -e "${Green}php            ${Color_Off}Execute php on container"
-  echo -e "${Green}exect          ${Color_Off}Execute command on container TTY"
-  echo -e "${Green}proxy          ${Color_Off}Proxy site through ngrok"
-  echo -e "${Green}ftp            ${Color_Off}Run ftp server"
-  echo -e "${Green}sftp           ${Color_Off}Run sftp server"
-  echo -e "${Green}run            ${Color_Off}Run a custom script"
-  echo -e "${Green}shell          ${Color_Off}Start a shell session within the application container"
-  echo -e "${Green}composer       ${Color_Off}Run composer on the container"
-  echo -e "${Green}mysql          ${Color_Off}Run mysql shell"
-  echo -e "${Green}mysql log      ${Color_Off}View mysql log"
-  echo -e "${Green}docker-compose ${Color_Off}Docker composer passthrough"
+  echo -e "${Green}up                   ${Color_Off}Create and start container stack"
+  echo -e "${Green}down                 ${Color_Off}Stop container stack"
+  echo -e "${Green}restart              ${Color_Off}Restart container stack"
+  echo -e "${Green}exec                 ${Color_Off}Execute command on php container"
+  echo -e "${Green}php                  ${Color_Off}Execute php on container"
+  echo -e "${Green}exect                ${Color_Off}Execute command on container (no TTY)"
+  echo -e "${Green}shell                ${Color_Off}Start a shell session in the application container"
+  echo -e "${Green}composer             ${Color_Off}Run composer on the container"
+  echo -e "${Green}run                  ${Color_Off}Run a custom script"
+  echo -e "${Green}proxy                ${Color_Off}Proxy site through ngrok"
+  echo -e "${Green}docker-compose       ${Color_Off}Docker compose passthrough"
+  echo -e ""
+  echo -e "${Yellow}Other Commands:"
+  echo -e ""
+  echo -e "${Green}ftp                  ${Color_Off}Run ftp server"
+  echo -e "${Green}sftp                 ${Color_Off}Run sftp server"
+  echo -e "${Green}mysql                ${Color_Off}Run mysql shell"
 }
 
 init
@@ -63,25 +64,48 @@ init
 function="$1"
 shift
 
-export HOST_UID=$(id -u)
-export HOST_GID=$(id -g)
+HOST_UID=$(id -u)
+export HOST_UID
+HOST_GID=$(id -g)
+export HOST_GID
+
+# Non-site-aware commands skip site resolution; everything else resolves
+case $function in
+install | site | ftp | sftp | mysql) ;;
+*) resolve_site "$1" && shift ;;
+esac
+
+# Container-targeting commands resolve which container to use
+case $function in
+exec | php | exect | shell | composer)
+  resolve_container "$1" && shift ;;
+esac
 
 case $function in
-    'install') . $DIR/bin/install "$@" ;;
-    'site') . $DIR/bin/site "$@" ;;
-    'up') . $DIR/bin/docker-compose up "$@" ;;
-    'down') . $DIR/bin/docker-compose down "$@" ;;
-    'restart') . $DIR/bin/docker-compose restart "$@" ;;
-    'exec') . $DIR/bin/docker-compose "exec php" "$@" ;;
-    'php') . $DIR/bin/docker-compose "exec php php" "$@" ;;
-    'exect') . $DIR/bin/docker-compose "exec -T php" "$@" ;;
-    'proxy') . $DIR/bin/proxy "$BUTLER_PROJECT" "$@" ;;
-    'ftp') . $DIR/bin/ftp "$@" ;;
-    'sftp') . $DIR/bin/sftp "$@" ;;
-    'run') . $DIR/bin/run "$@" ;;
-    'shell') . $DIR/bin/docker-compose "exec php bash" "$@" ;;
-    'composer') . $DIR/bin/docker-compose "exec -e COMPOSER_MEMORY_LIMIT=-1 php php composer.phar" "$@" ;;
-    'mysql') . $DIR/bin/mysql ;;
-    'docker-compose') . $DIR/bin/docker-compose ;;
-    *) print_usage ; exit 1;;
+# Management
+'install') . "$DIR/bin/install" "$@" ;;
+'site') . "$DIR/bin/site" "$@" ;;
+
+# Site commands (site resolved above)
+'up') . "$DIR/bin/docker-compose" up "$@" ;;
+'down') . "$DIR/bin/docker-compose" down "$@" ;;
+'restart') . "$DIR/bin/docker-compose" restart "$@" ;;
+'exec') . "$DIR/bin/docker-compose" "exec ${BUTLER_APP_CONTAINER}" "$@" ;;
+'php') . "$DIR/bin/docker-compose" "exec ${BUTLER_APP_CONTAINER} php" "$@" ;;
+'exect') . "$DIR/bin/docker-compose" "exec -T ${BUTLER_APP_CONTAINER}" "$@" ;;
+'shell') . "$DIR/bin/docker-compose" "exec ${BUTLER_APP_CONTAINER} bash" "$@" ;;
+'composer') . "$DIR/bin/composer" "$@" ;;
+'run') . "$DIR/bin/run" "$@" ;;
+'proxy') . "$DIR/bin/proxy" "$@" ;;
+'docker-compose') . "$DIR/bin/docker-compose" "$@" ;;
+
+# Other
+'ftp') . "$DIR/bin/ftp" "$@" ;;
+'sftp') . "$DIR/bin/sftp" "$@" ;;
+'mysql') . "$DIR/bin/mysql" "$@" ;;
+
+*)
+  print_usage
+  exit 1
+  ;;
 esac
