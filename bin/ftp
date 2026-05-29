@@ -1,10 +1,10 @@
 #!/bin/bash
-# sftp
+# ftp
 
 set -euo pipefail
 trap 'echo "Error: Script failed at line $LINENO."; exit 1' ERR
 
-PACKAGE="butler sftp"
+PACKAGE="butler ftp"
 DIR="$DIR/bin"
 COMMON=$DIR/common
 
@@ -31,41 +31,41 @@ require_arg() {
 # Parse args
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    -k|--key)
-      KEY_PATH=$(require_arg "$1" "${2-}")
+  -k | --key)
+    KEY_PATH=$(require_arg "$1" "${2-}")
+    shift 2
+    ;;
+  -u | --upload)
+    UPLOAD_PATH=$(require_arg "$1" "${2-}")
+    shift 2
+    ;;
+  -p | --port)
+    EXTERNAL_PORT=$(require_arg "$1" "${2-}")
+    shift 2
+    ;;
+  -P | --password)
+    if [[ $# -ge 2 && ! "$2" =~ ^- ]]; then
+      PASSWORD="$2"
       shift 2
-      ;;
-    -u|--upload)
-      UPLOAD_PATH=$(require_arg "$1" "${2-}")
-      shift 2
-      ;;
-    -p|--port)
-      EXTERNAL_PORT=$(require_arg "$1" "${2-}")
-      shift 2
-      ;;
-    -P|--password)
-      if [[ $# -ge 2 && ! "$2" =~ ^- ]]; then
-        PASSWORD="$2"
-        shift 2
-      else
-        read -s -p "Password: " PASSWORD
-        echo ""
-        shift
-      fi
-      ;;
-    -h|--help)
-      HELP=true
+    else
+      read -s -p "Password: " PASSWORD
+      echo ""
       shift
-      ;;
-    --)
-      shift
-      break
-      ;;
-    *)
-      echo "Unknown option: $1" >&2
-      echo "Try '$(basename "$0") --help' for usage." >&2
-      exit 1
-      ;;
+    fi
+    ;;
+  -h | --help)
+    HELP=true
+    shift
+    ;;
+  --)
+    shift
+    break
+    ;;
+  *)
+    echo "Unknown option: $1" >&2
+    echo "Try '$(basename "$0") --help' for usage." >&2
+    exit 1
+    ;;
   esac
 done
 
@@ -78,8 +78,8 @@ print_usage() {
   echo ""
   echo "OPTIONS:"
   echo "  -u, --upload PATH     Upload directory (default: \$HOME/ftp)"
-  echo "  -P, --port PORT       External port to expose (default: 2222)"
-  echo "  -w, --password PASS   Password for SFTP user (empty for key-only)"
+  echo "  -p, --port PORT       External port to expose (default: 20-21)"
+  echo "  -P, --password PASS   Password for FTP user"
   echo "  -h, --help            Show this help message"
   echo ""
   echo "NOTES:"
@@ -110,12 +110,11 @@ echo ""
 docker network inspect ftp >/dev/null 2>&1 || docker network create ftp
 
 docker run -it --rm --init \
-	--env FTP_PASS="${PASSWORD}" \
-	--env FTP_USER=user \
-	--name ftp-server \
-	--publish "${EXTERNAL_PORT}:20-21/tcp" \
-	--publish 40000-40009:40000-40009/tcp \
-	--volume "${UPLOAD_PATH}:/home/user" \
-    --name ftp \
-    --network ftp \
-	garethflowers/ftp-server
+  --env FTP_PASS="${PASSWORD}" \
+  --env FTP_USER=user \
+  --name ftp \
+  --publish "${EXTERNAL_PORT}:20-21/tcp" \
+  --publish 40000-40009:40000-40009/tcp \
+  --volume "${UPLOAD_PATH}:/home/user" \
+  --network ftp \
+  garethflowers/ftp-server

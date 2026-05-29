@@ -23,4 +23,4 @@ butler mysql -e "SET global general_log=on;  \
   SET global general_log_file='/var/log/mysql/mysql.log'; \
   SET global log_output = 'file';"
 
-docker compose --project-directory "$DIR/../common/mysql" exec mysql usr/bin/tail -f /var/log/mysql/mysql.log
+docker compose --project-directory "$DIR/../common/mysql" exec mysql /usr/bin/tail -f /var/log/mysql/mysql.log
