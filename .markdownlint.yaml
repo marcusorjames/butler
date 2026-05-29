@@ -1,0 +1,4 @@
+default: true
+MD013: false  # line length — impractical for tables and code blocks
+MD055:
+  style: "leading_and_trailing"  # require spaces: | text |, | --- |
