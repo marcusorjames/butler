@@ -25,30 +25,16 @@ print_usage() {
 cmd="$1"
 shift
 
-# Resolve site: non-flag arg = explicit site, flag or empty = infer from CWD
-case "$1" in
-  -*|"") site="$(basename $PWD)" ;;
-  *)     site="$1"; shift ;;
-esac
-
-if ! site_dir="$(get_site_dir "$site")"; then
-  die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
-fi
-
-export BUTLER_PROJECT="$site"
-init_site "$site_dir"
-
 # Ensure we are not in a docker directory as this breaks --project-directory
-# docker-compose commands!
 cd $DIR
 
 # Ensure nginx-proxy is up
 [ ! "$(docker ps | grep nginx-proxy)" ] && docker compose \
-    --project-directory "$DIR/../common/nginx-proxy" up -d
+  --project-directory "$DIR/../common/nginx-proxy" up -d
 
 # Run any site scripts
-if [ -f "$site_dir/scripts/$cmd" ]; then
-  . "$site_dir/scripts/$cmd"
+if [ -f "$CURRENT_SITE_DIR/scripts/$cmd" ]; then
+  . "$CURRENT_SITE_DIR/scripts/$cmd"
 fi
 
-docker compose --project-directory "$site_dir" $cmd "$@"
+docker compose --project-directory "$CURRENT_SITE_DIR" $cmd "$@"

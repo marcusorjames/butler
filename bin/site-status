@@ -4,11 +4,13 @@
 PACKAGE="butler site status"
 COMMON=$DIR/common
 
-. $COMMON/functions.sh
+. "$COMMON/functions.sh"
+. "$COMMON/statusline.sh"
 
 print_usage() {
   echo "Show the status of a site or all sites"
-  echo " " echo "SYNOPSIS:"
+  echo " "
+  echo "SYNOPSIS:"
   echo " "
   echo "$PACKAGE NAME [OPTION]"
   echo " "
@@ -16,24 +18,75 @@ print_usage() {
   echo "  -v, --verbose       print site directory"
 }
 
-check_app_exists() {
-  app_path="$SITES_DIR/$1/app"
-  [ -e $app_path ] && return 0
-  return 1
+app_link_status() {
+  local link_path="$1"
+  if [ -L "$link_path" ] && [ -e "$link_path" ]; then
+    echo "ok"
+  elif [ -L "$link_path" ]; then
+    echo "broken"
+  else
+    echo "missing"
+  fi
+}
+
+status_single() {
+  local site="$1" site_dir="$2" verbose="$3"
+  local app_path="$site_dir/app"
+  local status
+  status="$(app_link_status "$app_path")"
+
+  case "$status" in
+  ok) statusBadge "$site" "OK" "$CSuccess" "${verbose:+[$site_dir]}" ;;
+  broken)
+    local target
+    target="$(readlink "$app_path")"
+    statusBadge "$site" "BROKEN" "$CError" "dead link → $target"
+    echo -e "  Run ${On_White}${Black}butler site link --fix $site${Color_Off} to repair"
+    ;;
+  missing)
+    statusBadge "$site" "MISSING" "$CError"
+    echo -e "  Run ${On_White}${Black}butler site link $site${Color_Off} to link"
+    ;;
+  esac
+}
+
+status_multi() {
+  local site="$1" site_dir="$2" verbose="$3"
+  local app_path="$site_dir/app"
+
+  echo -e "${site}${verbose:+ [$site_dir]}"
+
+  local p status
+  for p in ${BUTLER_PROJECTS//,/ }; do
+    local proj_link="$app_path/$p"
+    status="$(app_link_status "$proj_link")"
+
+    case "$status" in
+    ok) statusBadge "  $p" "OK" "$CSuccess" ;;
+    broken)
+      local target
+      target="$(readlink "$proj_link")"
+      statusBadge "  $p" "BROKEN" "$CError" "dead link → $target"
+      ;;
+    missing) statusBadge "  $p" "MISSING" "$CError" ;;
+    esac
+  done
 }
 
 main() {
   help=false
   verbose=false
-
   args=()
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-      -h|--help)    help=true ;;
-      -v|--verbose) verbose=true ;;
-      --)           shift; break ;;
-      *)            args+=("$1") ;;
+    -h | --help) help=true ;;
+    -v | --verbose) verbose=true ;;
+    --)
+      shift
+      break
+      ;;
+    *) args+=("$1") ;;
     esac
     shift
   done
@@ -42,24 +95,26 @@ main() {
 
   $help && print_usage && exit 0
 
-  template_root="$DIR/../templates"
-
   site="$1"
 
-  [ -z $1 ] && echo -e "${CWarn}All sites is not yet implemented" && exit 0
+  [ -z "$site" ] && echo -e "${CWarn}All sites is not yet implemented${Color_Off}" && exit 0
 
   if ! site_dir="$(get_site_dir "$site")"; then
     die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
   fi
 
+  # Load site env to pick up BUTLER_PROJECTS if set
+  BUTLER_PROJECTS=""
+  if [ -f "$site_dir/.env" ]; then
+    set -a
+    . "$site_dir/.env"
+    set +a
+  fi
 
-  echo -en "$site "
-  if check_app_exists $site; then
-    echo -e "${CSuccess}OK${Color_Off}${verbose:+ [$site_dir]}"
+  if [ -n "$BUTLER_PROJECTS" ]; then
+    status_multi "$site" "$site_dir" "$verbose"
   else
-    echo -e "${CError}ERROR${Color_Off}"
-    echo -en "Run ${Black}${On_White}butler site link <site>${Color_Off} " \
-      && echo "to link the project directory"
+    status_single "$site" "$site_dir" "$verbose"
   fi
 }
 

@@ -1,0 +1,12 @@
+pre-commit:
+  parallel: true
+  commands:
+    shfmt:
+      glob: "*.sh"
+      run: shfmt -d -i 2 {staged_files}
+    shellcheck:
+      glob: "*.sh"
+      run: shellcheck -x --severity=warning {staged_files}
+    markdownlint:
+      glob: "*.md"
+      run: markdownlint-cli2 {staged_files}
