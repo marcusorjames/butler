@@ -1,6 +1,6 @@
-#!/bin/sh
+#!/bin/bash
 
-. $COMMON/colours.sh
+. "${COMMON}/colours.sh"
 
 statusLine() {
   echo -e "$CSuccess$1...$Color_Off$2"
