@@ -146,10 +146,3 @@ just test    # run bats test suite
 ```
 
 Formatting and linting are enforced automatically on every commit via lefthook.
-
-## Xdebug (PHPStorm)
-
-1. Run → Edit Configurations → Add PHP Remote Debug
-1. Check "Filter debug connection by IDE key"
-1. Server → add new: hostname e.g. `mysite.test`, port `80`, debugger `Xdebug`, map project root to `/var/www/html`
-1. IDE key: `PHPSTORM`
