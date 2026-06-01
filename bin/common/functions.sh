@@ -1,7 +1,5 @@
 #!/bin/bash
 
-. "${COMMON}/colours.sh"
-
 absolute_path() {
   local path="$1"
   # If it already starts with '/', it’s absolute
@@ -9,7 +7,7 @@ absolute_path() {
     echo "$path"
   else
     # Otherwise, expand relative to current directory
-    echo "$(pwd)/$path"
+    echo "$PWD/$path"
   fi
 }
 
@@ -34,6 +32,11 @@ get_dir() {
 site_exists() {
   local site_name="$1"
   get_site_dir "$site_name" >/dev/null
+}
+
+project_exists() {
+  local project_name="$1"
+  get_project_dir "$project_name" >/dev/null
 }
 
 die_with_error() {
