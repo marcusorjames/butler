@@ -25,4 +25,4 @@ lint:
 
 # Run test suite
 test:
-    bats tests/
+    bats --recursive tests/
