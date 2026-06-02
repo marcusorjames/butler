@@ -67,18 +67,21 @@ init_site() {
 
   export CURRENT_PROJ_DIR="${PROJECTS_DIR}/${BUTLER_PROJECT}"
   [ -n "$BUTLER_PROJECT_DIR" ] && export CURRENT_PROJ_DIR="$BUTLER_PROJECT_DIR"
+  return 0
 }
 
 resolve_container() {
   local candidate="${1:-}"
 
-  # Single-project: just ensure default is set, don't consume arg
+  # Single-project: ensure default is set
+  # returns 1: candidate not used
   if [ -z "$BUTLER_PROJECTS" ]; then
     BUTLER_APP_CONTAINER="${BUTLER_APP_CONTAINER:-php}"
     return 1
   fi
 
   # Multi-project: try explicit candidate first
+  # returns 0: candidate used
   if [ -n "$candidate" ]; then
     local p
     for p in ${BUTLER_PROJECTS//,/ }; do
@@ -90,6 +93,7 @@ resolve_container() {
   fi
 
   # Multi-project: infer from CWD project name
+  # returns 1: candidate not used
   if [ -n "$BUTLER_PROJECT" ]; then
     local p
     for p in ${BUTLER_PROJECTS//,/ }; do
