@@ -6,6 +6,7 @@ setup() {
   DIR="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)"
   . "$DIR/bin/common/colours.sh"
   . "$DIR/bin/common/functions.sh"
+  . "$DIR/bin/common/init.sh"
 }
 
 teardown() {
