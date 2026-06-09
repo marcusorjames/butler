@@ -5,8 +5,8 @@ PACKAGE="butler site cd"
 DIR=$(readlink -f "$(dirname "$(readlink -f "$0")")/../")
 COMMON=$DIR/bin/common
 
-. $COMMON/init.sh
-. $COMMON/functions.sh
+. "$COMMON/init.sh"
+. "$COMMON/functions.sh"
 
 init
 
@@ -28,7 +28,7 @@ main() {
     die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
   fi
 
-  cd $site_dir
+  cd "$site_dir" || exit
   $SHELL
 }
 

@@ -7,7 +7,7 @@ COMMON="$DIR/bin/common"
 . "$COMMON/colours.sh"
 
 # Ensure nginx-proxy is running
-[ ! "$(docker ps | grep nginx-proxy)" ] && docker compose \
+docker ps | grep -q nginx-proxy || docker compose \
   --project-directory "$DIR/common/nginx-proxy" up -d
 
 find_volume_target() {

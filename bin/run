@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Docker run
 
 PACKAGE="butler run"
@@ -6,8 +6,8 @@ SCRIPTS_DIR="$DIR/scripts"
 DIR="$DIR/bin"
 
 COMMON=$DIR/common
-. $COMMON/colours.sh
-. $COMMON/functions.sh
+. "$COMMON/colours.sh"
+. "$COMMON/functions.sh"
 
 print_usage() {
   echo "Run a custom script"
@@ -22,9 +22,7 @@ print_usage() {
 
 site=$(basename "$CURRENT_SITE_DIR")
 
-if ! site_dir="$(get_site_dir $site)"; then
-  die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
-fi
+site_exists "$site" || die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
 
 cmd_name="$1"
 site_cmd="$CURRENT_SITE_DIR/scripts/$cmd_name"
@@ -32,13 +30,14 @@ cmd="$SCRIPTS_DIR/$cmd_name"
 
 shift
 
-# Run script
-if [ -f $site_cmd ]; then
-  . $site_cmd "$@"
+if [ -f "$site_cmd" ]; then
+  # shellcheck source=/dev/null
+  . "$site_cmd" "$@"
   exit 0
-elif [ -f $cmd ]; then
-  . $cmd "$@"
+elif [ -f "$cmd" ]; then
+  # shellcheck source=/dev/null
+  . "$cmd" "$@"
   exit 0
 else
-  echo -e "${CError}Error: $site_cmd or $cmd doesn't exists" && exit 1
+  die_with_error "$site_cmd or $cmd doesn't exist"
 fi
