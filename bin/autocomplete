@@ -3,8 +3,8 @@
 
 DIR="$(dirname "$(readlink -f "$0")")"
 [ -f "$DIR/../.env" ] || return 0
-export $(cat "$DIR/../.env" | xargs)
-TEMPLATES="$DIR/../templates"
+# shellcheck source=/dev/null
+set -a; . "$DIR/../.env"; set +a
 
 _butler_autocomplete() {
   local cur prev
@@ -19,16 +19,16 @@ _butler_autocomplete() {
   2)
     case ${cur} in
     up | down | restart)
-      COMPREPLY=($(compgen -W "$(ls "$BUTLER_SITES_DIR"/)"))
+      mapfile -t COMPREPLY < <(compgen -W "$(ls "$BUTLER_SITES_DIR"/)")
       ;;
     php | exec)
-      COMPREPLY=($(compgen -f -- "${COMP_WORDS[COMP_CWORD]}"))
+      mapfile -t COMPREPLY < <(compgen -f -- "${COMP_WORDS[COMP_CWORD]}")
       ;;
     sftp)
-      COMPREPLY=($(compgen -W "-k --key -u --upload -p --port -P --password -h --help" -- "${COMP_WORDS[COMP_CWORD]}"))
+      mapfile -t COMPREPLY < <(compgen -W "-k --key -u --upload -p --port -P --password -h --help" -- "${COMP_WORDS[COMP_CWORD]}")
       ;;
     ftp)
-      COMPREPLY=($(compgen -W "-u --upload -p --port -P --password -h --help" -- "${COMP_WORDS[COMP_CWORD]}"))
+      mapfile -t COMPREPLY < <(compgen -W "-u --upload -p --port -P --password -h --help" -- "${COMP_WORDS[COMP_CWORD]}")
       ;;
     esac
     ;;
@@ -37,14 +37,14 @@ _butler_autocomplete() {
     site)
       case ${cur} in
       cd)
-        COMPREPLY=($(compgen -W "$(ls "$BUTLER_SITES_DIR"/)"))
+        mapfile -t COMPREPLY < <(compgen -W "$(ls "$BUTLER_SITES_DIR"/)")
         ;;
       esac
       ;;
     sftp)
       case ${COMP_WORDS[COMP_CWORD - 1]} in
       -k | --key | -u | --upload)
-        COMPREPLY=($(compgen -f -- "${COMP_WORDS[COMP_CWORD]}"))
+        mapfile -t COMPREPLY < <(compgen -f -- "${COMP_WORDS[COMP_CWORD]}")
         ;;
       esac
       ;;

@@ -4,7 +4,6 @@
 set -euo pipefail
 trap 'echo "Error: Script failed at line $LINENO."; exit 1' ERR
 
-PACKAGE="butler ftp"
 DIR="$DIR/bin"
 COMMON=$DIR/common
 
@@ -31,10 +30,6 @@ require_arg() {
 # Parse args
 while [[ $# -gt 0 ]]; do
   case "$1" in
-  -k | --key)
-    KEY_PATH=$(require_arg "$1" "${2-}")
-    shift 2
-    ;;
   -u | --upload)
     UPLOAD_PATH=$(require_arg "$1" "${2-}")
     shift 2
@@ -48,7 +43,7 @@ while [[ $# -gt 0 ]]; do
       PASSWORD="$2"
       shift 2
     else
-      read -s -p "Password: " PASSWORD
+      read -rsp "Password: " PASSWORD
       echo ""
       shift
     fi
@@ -83,7 +78,6 @@ print_usage() {
   echo "  -h, --help            Show this help message"
   echo ""
   echo "NOTES:"
-  echo "  - If no valid key path is found, the container runs password-only."
   echo "  - Press Ctrl+C to stop; container is removed automatically."
   echo ""
 }

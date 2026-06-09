@@ -1,8 +1,6 @@
 #!/bin/sh
 # mysql log
 
-PACKAGE="butler mysql log"
-
 cleanup() {
   butler mysql -e 'SET global general_log=off;'
   docker compose --project-directory "$DIR/../common/mysql" exec mysql rm /var/log/mysql/mysql.log
@@ -12,10 +10,10 @@ trap cleanup EXIT
 
 # Ensure we are not in a docker directory as this breaks --project-directory
 # docker-compose commands!
-cd $DIR
+cd "$DIR" || exit
 
 # Ensure mysql is up
-[ ! "$(docker ps | grep mysql)" ] && docker compose \
+docker ps | grep -q mysql || docker compose \
   --project-directory "$DIR/../common/mysql" up -d
 
 # butler mysql -e "SET global general_log=on; SET"
