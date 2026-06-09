@@ -10,14 +10,17 @@ COMMON="$DIR/bin/common"
 [ ! "$(docker ps | grep nginx-proxy)" ] && docker compose \
   --project-directory "$DIR/common/nginx-proxy" up -d
 
-# Detect where app/BUTLER_APP_CONTAINER is mounted inside the container
+find_volume_target() {
+  awk -v src="$1" '
+    /source:/ && $0 ~ src { found=1; next }
+    found && /target:/     { gsub(/^[[:space:]]+target:[[:space:]]+/, ""); print; exit }
+    found                  { found=0 }
+  '
+}
+
 workdir=$(
   docker compose --project-directory "$CURRENT_SITE_DIR" config 2>/dev/null |
-    awk -v src="app/${BUTLER_APP_CONTAINER}" '
-      /source:/ && $0 ~ src { found=1; next }
-      found && /target:/     { gsub(/^[[:space:]]+target:[[:space:]]+/, ""); print; exit }
-      found                  { found=0 }
-    '
+    find_volume_target "app/${BUTLER_APP_CONTAINER}"
 )
 
 workdir_args=()
