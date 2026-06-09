@@ -2,7 +2,6 @@
 # site link subcommand
 
 PACKAGE="butler site link"
-COMMON=$DIR/common
 
 . "$COMMON/functions.sh"
 . "$COMMON/statusline.sh"
@@ -140,4 +139,3 @@ main() {
   fi
 }
 
-main "$@"

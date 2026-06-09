@@ -3,6 +3,7 @@
 
 PACKAGE="butler site"
 DIR="$DIR/bin"
+COMMON="$DIR/common"
 
 print_usage() {
   echo "Manage sites"
@@ -26,11 +27,11 @@ function="$1"
 shift
 
 case $function in
-'add') . "$DIR/site-add" "$@" ;;
+'add') . "$DIR/site-add" && main "$@" ;;
 'cd') "$DIR/site-cd" "$@" ;;
-'convert') . "$DIR/site-convert" "$@" ;;
-'status') . "$DIR/site-status" "$@" ;;
-'link') . "$DIR/site-link" "$@" ;;
+'convert') . "$DIR/site-convert" && main "$@" ;;
+'status') . "$DIR/site-status" && main "$@" ;;
+'link') . "$DIR/site-link" && main "$@" ;;
 *)
   print_usage
   exit 1

@@ -2,7 +2,6 @@
 # site convert subcommand — convert a single-project site to multi-project
 
 PACKAGE="butler site convert"
-COMMON=$DIR/common
 
 . "$COMMON/fzfread.sh"
 . "$COMMON/colours.sh"
@@ -114,4 +113,3 @@ main() {
   echo -e "  ${Yellow}./app${Color_Off} references must now use ${Yellow}./app/$first_proj_name${Color_Off} (or whichever project)."
 }
 
-main "$@"

@@ -176,8 +176,6 @@ main() {
 
 }
 
-main "$@"
-
 # TODOS:
 # - Chown $USER:www-data
 # - Add a default template
