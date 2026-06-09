@@ -44,3 +44,23 @@ load "../helpers/common"
   run project_exists myproject
   [ "$status" -ne 0 ]
 }
+
+@test "get_template_dir returns path when template exists" {
+  local base
+  base="$(mktemp -d)"
+  mkdir -p "$base/bin" "$base/templates/mytemplate"
+  DIR="$base/bin"
+
+  result="$(get_template_dir mytemplate)"
+  [ "$result" = "$base/bin/../templates/mytemplate" ]
+}
+
+@test "get_template_dir exits nonzero when template is absent" {
+  local base
+  base="$(mktemp -d)"
+  mkdir -p "$base/bin"
+  DIR="$base/bin"
+
+  run get_template_dir nonexistent
+  [ "$status" -ne 0 ]
+}
