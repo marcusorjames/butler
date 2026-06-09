@@ -2,7 +2,6 @@
 # site status subcommand
 
 PACKAGE="butler site status"
-COMMON=$DIR/common
 
 . "$COMMON/functions.sh"
 . "$COMMON/statusline.sh"
@@ -118,4 +117,3 @@ main() {
   fi
 }
 
-main "$@"
