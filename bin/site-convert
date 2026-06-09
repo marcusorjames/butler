@@ -21,6 +21,45 @@ print_usage() {
   echo "writes BUTLER_PROJECTS to the site .env."
 }
 
+convert_app_symlink() {
+  local site="$1" site_dir="$2"
+  local app_path="$site_dir/app"
+
+  if [ -d "$app_path" ] && [ ! -L "$app_path" ]; then
+    die_with_error "Site ${CWarn}$site${Color_Off} is already a multi-project site"
+  fi
+
+  if [ ! -L "$app_path" ]; then
+    die_with_error "Site ${CWarn}$site${Color_Off} has no app symlink — nothing to convert"
+  fi
+
+  local current_target first_proj_name
+  current_target="$(readlink "$app_path")"
+  first_proj_name="$(basename "$current_target")"
+
+  echo -e "Converting ${Green}$site${Color_Off}: app → ${Green}$first_proj_name${Color_Off} (${current_target})"
+  echo ""
+
+  rm "$app_path"
+  mkdir -p "$app_path"
+  ln -s "$current_target" "$app_path/$first_proj_name"
+  statusLine "Moved $first_proj_name into app/" "done"
+
+  echo "$first_proj_name"
+}
+
+write_butler_projects() {
+  local site_dir="$1" project_names="$2"
+  local site_env="$site_dir/.env"
+
+  if [ -f "$site_env" ] && grep -q "^BUTLER_PROJECTS=" "$site_env"; then
+    sed -i "s|^BUTLER_PROJECTS=.*|BUTLER_PROJECTS=$project_names|" "$site_env"
+  else
+    echo "BUTLER_PROJECTS=$project_names" >>"$site_env"
+  fi
+  statusLine "Wrote BUTLER_PROJECTS to site .env" "done"
+}
+
 main() {
   help=false
   site="${1:-}"
@@ -42,7 +81,6 @@ main() {
 
   $help && print_usage && exit 0
 
-  # Resolve site
   if [ -z "$site" ]; then
     fzf_read "$SITES_DIR" "Select a site: " site
   fi
@@ -52,32 +90,13 @@ main() {
     die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
   fi
 
-  app_path="$site_dir/app"
+  local first_proj_name
+  first_proj_name="$(convert_app_symlink "$site" "$site_dir")" || exit $?
+  # Strip status output lines — last line is the project name
+  first_proj_name="$(echo "$first_proj_name" | tail -n1)"
 
-  # Must be a plain symlink (not already a directory)
-  if [ -d "$app_path" ] && [ ! -L "$app_path" ]; then
-    die_with_error "Site ${CWarn}$site${Color_Off} is already a multi-project site"
-  fi
+  local project_names="$first_proj_name"
 
-  if [ ! -L "$app_path" ]; then
-    die_with_error "Site ${CWarn}$site${Color_Off} has no app symlink — nothing to convert"
-  fi
-
-  current_target="$(readlink "$app_path")"
-  first_proj_name="$(basename "$current_target")"
-
-  echo -e "Converting ${Green}$site${Color_Off}: app → ${Green}$first_proj_name${Color_Off} (${current_target})"
-  echo ""
-
-  # Replace symlink with directory, re-link existing project under its name
-  rm "$app_path"
-  mkdir -p "$app_path"
-  ln -s "$current_target" "$app_path/$first_proj_name"
-  statusLine "Moved $first_proj_name into app/" "done"
-
-  project_names="$first_proj_name"
-
-  # Prompt for additional projects
   while true; do
     read -r -p "Add another project name (leave blank to finish): " proj_name
     [ -z "$proj_name" ] && break
@@ -88,28 +107,19 @@ main() {
       echo -e "Found ${Green}$proj_dir${Color_Off}"
     else
       read -r -p "Repository URL for $proj_name (leave blank to skip clone): " proj_repo
-      proj_dir="$(dirname "$current_target")/$proj_name"
+      proj_dir="$(dirname "$(readlink "$site_dir/app/$first_proj_name")")/$proj_name"
       mkdir -p "$proj_dir"
       [ -n "$proj_repo" ] && git clone "$proj_repo" "$proj_dir"
     fi
 
-    ln -s "$proj_dir" "$app_path/$proj_name"
+    ln -s "$proj_dir" "$site_dir/app/$proj_name"
     statusLine "Linked $proj_name" "done"
     project_names="$project_names,$proj_name"
   done
 
-  # Write BUTLER_PROJECTS to site .env
-  site_env="$site_dir/.env"
-  if [ -f "$site_env" ] && grep -q "^BUTLER_PROJECTS=" "$site_env"; then
-    # Update existing line
-    sed -i "s|^BUTLER_PROJECTS=.*|BUTLER_PROJECTS=$project_names|" "$site_env"
-  else
-    echo "BUTLER_PROJECTS=$project_names" >>"$site_env"
-  fi
-  statusLine "Wrote BUTLER_PROJECTS to site .env" "done"
+  write_butler_projects "$site_dir" "$project_names"
 
   echo ""
   echo -e "${CWarn}Note:${Color_Off} Update your docker-compose.yml volume mounts —"
   echo -e "  ${Yellow}./app${Color_Off} references must now use ${Yellow}./app/$first_proj_name${Color_Off} (or whichever project)."
 }
-
