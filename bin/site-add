@@ -8,6 +8,7 @@ PACKAGE="butler site add"
 
 . "$COMMON/fzfread.sh"
 . "$COMMON/colours.sh"
+. "$COMMON/functions.sh"
 . "$COMMON/statusline.sh"
 
 print_usage() {
@@ -23,17 +24,6 @@ print_usage() {
   echo "  -t, --template      site template such as 'wordpress'"
   echo "  -r, --repository    git repository"
   echo "  -m, --multi         create a multi-project site"
-}
-
-check_template_exists() {
-  [ ! -d $1 ] && echo -e "${CError}Error: Template does not exist" &&
-    echo " " &&
-    echo -e "${CWarn}Available templates are $(ls -m $DIR/../templates/)" &&
-    exit 1
-}
-
-check_dir() {
-  [ -d $1 ] && echo -e "${CError}Error: $2 already exists" && exit 1
 }
 
 main() {
@@ -86,13 +76,13 @@ main() {
   [ -z "$template" ] && fzf_read "$template_root" "Specify a template: " template
   [ -z "$template" ] && template="NULL" # Because the root dir is a directory
 
-  template_dir="$template_root/$template"
-
-  check_template_exists $template_dir
+  if ! template_dir="$(get_template_dir "$template")"; then
+    die_with_error "Template ${CWarn}$template${Color_Off} does not exist. Available: $(ls -m "$template_root/")"
+  fi
 
   [ -z "$name" ] && read -rp "Specify a name: " name
   site_dir="$SITES_DIR/$name"
-  check_dir $site_dir "Site"
+  site_exists "$name" && die_with_error "Site ${CWarn}$name${Color_Off} already exists"
 
   $BUTLER_REQUIRED_CONTEXT && [ -z "$context" ] && read -rp "Specify a context: " context
 
@@ -102,6 +92,7 @@ main() {
   cp -r "$template_dir" "$site_dir/"
 
   if $multi; then
+    # Multi-project: app/ is a directory containing named symlinks
     mkdir -p "$site_dir/app"
     project_names=""
     while true; do
@@ -138,9 +129,13 @@ main() {
       project_names="$project_names$proj_name"
     done
 
-    [ -n "$project_names" ] && echo "BUTLER_PROJECTS=$project_names" >>"$site_dir/.env"
+    if [ -n "$project_names" ]; then
+      write_butler_projects "$site_dir" "$project_names"
+      statusLine "Wrote BUTLER_PROJECTS to site .env" "done"
+    fi
     statusLine "Multi-project site created" "done"
   else
+    # Single-project: app is a symlink to the project directory
     [ -z "$repository" ] && read -r -p "Specify a repository: " repository
 
     project_dir="$PROJECTS_DIR"

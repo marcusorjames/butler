@@ -48,17 +48,6 @@ convert_app_symlink() {
   echo "$first_proj_name"
 }
 
-write_butler_projects() {
-  local site_dir="$1" project_names="$2"
-  local site_env="$site_dir/.env"
-
-  if [ -f "$site_env" ] && grep -q "^BUTLER_PROJECTS=" "$site_env"; then
-    sed -i "s|^BUTLER_PROJECTS=.*|BUTLER_PROJECTS=$project_names|" "$site_env"
-  else
-    echo "BUTLER_PROJECTS=$project_names" >>"$site_env"
-  fi
-  statusLine "Wrote BUTLER_PROJECTS to site .env" "done"
-}
 
 main() {
   help=false
@@ -118,6 +107,7 @@ main() {
   done
 
   write_butler_projects "$site_dir" "$project_names"
+  statusLine "Wrote BUTLER_PROJECTS to site .env" "done"
 
   echo ""
   echo -e "${CWarn}Note:${Color_Off} Update your docker-compose.yml volume mounts —"

@@ -29,6 +29,12 @@ get_dir() {
   return 1
 }
 
+get_template_dir() {
+  local template_dir="$DIR/../templates/$1"
+  [ -d "$template_dir" ] || return 1
+  echo "$template_dir"
+}
+
 site_exists() {
   local site_name="$1"
   get_site_dir "$site_name" >/dev/null
@@ -37,6 +43,17 @@ site_exists() {
 project_exists() {
   local project_name="$1"
   get_project_dir "$project_name" >/dev/null
+}
+
+write_butler_projects() {
+  local site_dir="$1" project_names="$2"
+  local site_env="$site_dir/.env"
+
+  if [ -f "$site_env" ] && grep -q "^BUTLER_PROJECTS=" "$site_env"; then
+    sed -i "s|^BUTLER_PROJECTS=.*|BUTLER_PROJECTS=$project_names|" "$site_env"
+  else
+    echo "BUTLER_PROJECTS=$project_names" >>"$site_env"
+  fi
 }
 
 die_with_error() {
