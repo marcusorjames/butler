@@ -1,8 +1,8 @@
 #!/bin/bash
 init() {
-  if [ -f "$DIR/.env" ]; then
+  if [ -f "$ROOT_DIR/.env" ]; then
     set -a
-    . "$DIR/.env"
+    . "$ROOT_DIR/.env"
     set +a
   else
     echo "No .env file found" && exit 0

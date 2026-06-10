@@ -30,7 +30,7 @@ get_dir() {
 }
 
 get_template_dir() {
-  local template_dir="$DIR/../templates/$1"
+  local template_dir="$ROOT_DIR/templates/$1"
   [ -d "$template_dir" ] || return 1
   echo "$template_dir"
 }

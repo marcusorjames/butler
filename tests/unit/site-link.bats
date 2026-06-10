@@ -2,7 +2,7 @@
 load "../helpers/common"
 
 setup_extra() {
-  . "$DIR/bin/site-link"
+  . "$BIN_DIR/site-link"
 }
 
 @test "link_single creates app symlink when none exists" {

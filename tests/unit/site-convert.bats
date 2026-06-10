@@ -2,7 +2,7 @@
 load "../helpers/common"
 
 setup_extra() {
-  . "$DIR/bin/site-convert"
+  . "$BIN_DIR/site-convert"
 }
 
 # --- convert_app_symlink ---

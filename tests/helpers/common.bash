@@ -3,13 +3,14 @@
 setup() {
   SITES_DIR="$(mktemp -d)"
   PROJECTS_DIR="$(mktemp -d)"
-  DIR="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)"
-  COMMON="$DIR/bin/common"
+  ROOT_DIR="$(cd "$BATS_TEST_DIRNAME/../.." && pwd)"
+  BIN_DIR="$ROOT_DIR/bin"
+  COMMON_DIR="$BIN_DIR/common"
   main() { :; }
-  . "$DIR/bin/common/colours.sh"
-  . "$DIR/bin/common/functions.sh"
-  . "$DIR/bin/common/statusline.sh"
-  . "$DIR/bin/common/init.sh"
+  . "$COMMON_DIR/colours.sh"
+  . "$COMMON_DIR/functions.sh"
+  . "$COMMON_DIR/statusline.sh"
+  . "$COMMON_DIR/init.sh"
   if declare -f setup_extra > /dev/null 2>&1; then setup_extra; fi
 }
 

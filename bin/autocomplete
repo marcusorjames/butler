@@ -1,10 +1,10 @@
 #!/bin/bash
 # Autocomplete for butler
 
-DIR="$(dirname "$(readlink -f "$0")")"
-[ -f "$DIR/../.env" ] || return 0
+ROOT_DIR="$(dirname "$(readlink -f "$0")")/.."
+[ -f "$ROOT_DIR/.env" ] || return 0
 # shellcheck source=/dev/null
-set -a; . "$DIR/../.env"; set +a
+set -a; . "$ROOT_DIR/.env"; set +a
 
 _butler_autocomplete() {
   local cur prev

@@ -6,10 +6,10 @@
 
 PACKAGE="butler site add"
 
-. "$COMMON/fzfread.sh"
-. "$COMMON/colours.sh"
-. "$COMMON/functions.sh"
-. "$COMMON/statusline.sh"
+. "$COMMON_DIR/fzfread.sh"
+. "$COMMON_DIR/colours.sh"
+. "$COMMON_DIR/functions.sh"
+. "$COMMON_DIR/statusline.sh"
 
 print_usage() {
   echo "Add a new site"
@@ -71,7 +71,7 @@ main() {
 
   $help && print_usage && exit 0
 
-  template_root="$DIR/../templates"
+  template_root="$ROOT_DIR/templates"
 
   [ -z "$template" ] && fzf_read "$template_root" "Specify a template: " template
   [ -z "$template" ] && template="NULL" # Because the root dir is a directory
