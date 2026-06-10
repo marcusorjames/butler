@@ -26,6 +26,31 @@ print_usage() {
   echo "  -m, --multi         create a multi-project site"
 }
 
+add_multi() {
+  local site_dir="$1" template_dir="$2"
+  local -n _names="$3" _dirs="$4" _repos="$5"
+
+  statusLine "Creating Site directory" "done"
+  cp -r "$template_dir" "$site_dir/"
+  mkdir -p "$site_dir/app"
+
+  local i proj_name proj_dir proj_repo
+  for i in "${!_names[@]}"; do
+    proj_name="${_names[$i]}"
+    proj_dir="${_dirs[$i]}"
+    proj_repo="${_repos[$i]}"
+    mkdir -p "$proj_dir"
+    [ -n "$proj_repo" ] && git clone "$proj_repo" "$proj_dir"
+    ln -s "$proj_dir" "$site_dir/app/$proj_name"
+    statusLine "Linked $proj_name" "done"
+  done
+
+  local IFS=,
+  write_butler_projects "$site_dir" "${_names[*]}"
+  statusLine "Wrote BUTLER_PROJECTS to site .env" "done"
+  statusLine "Multi-project site created" "done"
+}
+
 add_single() {
   local site_dir="$1" template_dir="$2" project_dir="$3" repository="$4"
 
@@ -103,23 +128,17 @@ main() {
   [[ ! "$context" =~ ^[[:alpha:]]*$ ]] && echo -e "${CError}Context must be alphabetic" && exit 1
 
   if $multi; then
-    # Multi-project: app/ is a directory containing named symlinks
-    statusLine "Creating Site directory" "done"
-    cp -r "$template_dir" "$site_dir/"
-    mkdir -p "$site_dir/app"
-    project_names=""
+    # Multi-project: collect all input first, then execute
+    local proj_names=() proj_dirs=() proj_repos=()
     while true; do
       read -r -p "Project name (leave blank to finish): " proj_name
       [ -z "$proj_name" ] && break
 
-      proj_context_dir="$PROJECTS_DIR"
-      [ -n "$context" ] && proj_context_dir="$proj_context_dir/$context"
-      proj_dir="$proj_context_dir/$proj_name"
+      proj_dir="$PROJECTS_DIR"
+      [ -n "$context" ] && proj_dir="$proj_dir/$context"
+      proj_dir="$proj_dir/$proj_name"
 
-      proj_dir_exists=false
-      [ -d "$proj_dir" ] && proj_dir_exists=true
-
-      if $proj_dir_exists; then
+      if [ -d "$proj_dir" ]; then
         if [ -d "$proj_dir/.git" ]; then
           existing_repo_url=$(git -C "$proj_dir" config --get remote.origin.url)
           read -r -p "$(echo -e "Project dir $Green$proj_dir$Color_Off already exists (repo: $Green$existing_repo_url$Color_Off) — use existing? [Yn] ")" -n 1
@@ -129,24 +148,21 @@ main() {
           echo
         fi
         [[ ! $REPLY =~ ^[Yy]$ ]] && continue
+        proj_repos+=("")
       else
         read -r -p "Repository URL for $proj_name (leave blank to skip clone): " proj_repo
-        mkdir -p "$proj_dir"
-        [ -n "$proj_repo" ] && git clone "$proj_repo" "$proj_dir"
+        if [ -n "$proj_repo" ] && ! git ls-remote "$proj_repo" >/dev/null 2>&1; then
+          echo -e "${CError}Cannot reach repository $proj_repo, skipping${Color_Off}"
+          continue
+        fi
+        proj_repos+=("$proj_repo")
       fi
 
-      ln -s "$proj_dir" "$site_dir/app/$proj_name"
-      statusLine "Linked $proj_name" "done"
-
-      [ -n "$project_names" ] && project_names="$project_names,"
-      project_names="$project_names$proj_name"
+      proj_names+=("$proj_name")
+      proj_dirs+=("$proj_dir")
     done
 
-    if [ -n "$project_names" ]; then
-      write_butler_projects "$site_dir" "$project_names"
-      statusLine "Wrote BUTLER_PROJECTS to site .env" "done"
-    fi
-    statusLine "Multi-project site created" "done"
+    [ "${#proj_names[@]}" -gt 0 ] && add_multi "$site_dir" "$template_dir" proj_names proj_dirs proj_repos
   else
     # Single-project: app is a symlink to the project directory
     [ -z "$repository" ] && read -r -p "Specify a repository: " repository
