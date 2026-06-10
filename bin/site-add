@@ -26,6 +26,20 @@ print_usage() {
   echo "  -m, --multi         create a multi-project site"
 }
 
+add_single() {
+  local site_dir="$1" template_dir="$2" project_dir="$3" repository="$4"
+
+  statusLine "Creating Site directory" "done"
+  cp -r "$template_dir" "$site_dir/"
+
+  statusLine "Creating Project directory" "done"
+  mkdir -p "$project_dir"
+  [ -n "$repository" ] && git clone "$repository" "$project_dir"
+
+  statusLine "Linking Project to Site" "done"
+  ln -s "$project_dir" "$site_dir/app"
+}
+
 main() {
 
   help=false
@@ -88,11 +102,10 @@ main() {
 
   [[ ! "$context" =~ ^[[:alpha:]]*$ ]] && echo -e "${CError}Context must be alphabetic" && exit 1
 
-  statusLine "Creating Site directory" "done"
-  cp -r "$template_dir" "$site_dir/"
-
   if $multi; then
     # Multi-project: app/ is a directory containing named symlinks
+    statusLine "Creating Site directory" "done"
+    cp -r "$template_dir" "$site_dir/"
     mkdir -p "$site_dir/app"
     project_names=""
     while true; do
@@ -154,19 +167,13 @@ main() {
         echo
       fi
       [[ ! $REPLY =~ ^[Yy]$ ]] && exit 0
-    fi
-
-    if [ "$project_dir_exists" = false ]; then
-      statusLine "Creating Project directory" "done"
-      mkdir -p "$project_dir"
-      [ -n "$repository" ] && git clone "$repository" "$project_dir"
-    else
       statusLine "Creating Project directory" "skipped"
       statusLine "Cloning into $project_dir" "skipped"
+      statusLine "Linking Project to Site" "done"
+      ln -s "$project_dir" "$site_dir/app"
+    else
+      add_single "$site_dir" "$template_dir" "$project_dir" "$repository"
     fi
-
-    statusLine "Linking Project to Site" "done"
-    ln -s "$project_dir" "$site_dir/app"
   fi
 
 }
