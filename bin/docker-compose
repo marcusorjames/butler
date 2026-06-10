@@ -3,12 +3,6 @@
 
 PACKAGE="butler docker-compose"
 
-DIR="$DIR/bin"
-COMMON=$DIR/common
-
-. "$COMMON/colours.sh"
-. "$COMMON/functions.sh"
-
 print_usage() {
   echo "Docker Compose passthrough"
   echo " "
@@ -26,11 +20,11 @@ cmd="$1"
 shift
 
 # Ensure we are not in a docker directory as this breaks --project-directory
-cd "$DIR" || exit
+cd "$BIN_DIR" || exit
 
 # Ensure nginx-proxy is up
 docker ps | grep -q nginx-proxy || docker compose \
-  --project-directory "$DIR/../common/nginx-proxy" up -d
+  --project-directory "$ROOT_DIR/common/nginx-proxy" up -d
 
 # Run any site scripts
 if [ -f "$CURRENT_SITE_DIR/scripts/$cmd" ]; then

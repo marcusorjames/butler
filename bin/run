@@ -2,12 +2,7 @@
 # Docker run
 
 PACKAGE="butler run"
-SCRIPTS_DIR="$DIR/scripts"
-DIR="$DIR/bin"
-
-COMMON=$DIR/common
-. "$COMMON/colours.sh"
-. "$COMMON/functions.sh"
+SCRIPTS_DIR="$ROOT_DIR/scripts"
 
 print_usage() {
   echo "Run a custom script"

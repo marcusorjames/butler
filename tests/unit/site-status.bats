@@ -2,7 +2,7 @@
 load "../helpers/common"
 
 setup_extra() {
-  . "$DIR/bin/site-status"
+  . "$BIN_DIR/site-status"
 }
 
 # --- app_link_status ---

@@ -4,11 +4,6 @@
 set -euo pipefail
 trap 'echo "Error: Script failed at line $LINENO."; exit 1' ERR
 
-DIR="$DIR/bin"
-COMMON=$DIR/common
-
-. "$COMMON/functions.sh"
-
 # Defaults
 KEY_PATH="$HOME/.ssh"
 UPLOAD_PATH="$HOME/ftp"

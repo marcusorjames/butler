@@ -3,12 +3,9 @@
 # Auto-detects the project workdir from compose volume bindings and prefers
 # a local composer.phar over the system composer binary if one exists.
 
-COMMON="$DIR/bin/common"
-. "$COMMON/colours.sh"
-
 # Ensure nginx-proxy is running
 docker ps | grep -q nginx-proxy || docker compose \
-  --project-directory "$DIR/common/nginx-proxy" up -d
+  --project-directory "$ROOT_DIR/common/nginx-proxy" up -d
 
 find_volume_target() {
   awk -v src="$1" '

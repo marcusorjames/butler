@@ -48,11 +48,11 @@ load "../helpers/common"
 @test "get_template_dir returns path when template exists" {
   local base
   base="$(mktemp -d)"
-  mkdir -p "$base/bin" "$base/templates/mytemplate"
-  DIR="$base/bin"
+  mkdir -p "$base/templates/mytemplate"
+  ROOT_DIR="$base"
 
   result="$(get_template_dir mytemplate)"
-  [ "$result" = "$base/bin/../templates/mytemplate" ]
+  [ "$result" = "$base/templates/mytemplate" ]
 }
 
 @test "get_template_dir exits nonzero when template is absent" {

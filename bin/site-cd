@@ -2,11 +2,12 @@
 # site cd subcommand
 
 PACKAGE="butler site cd"
-DIR=$(readlink -f "$(dirname "$(readlink -f "$0")")/../")
-COMMON=$DIR/bin/common
+ROOT_DIR=$(readlink -f "$(dirname "$(readlink -f "$0")")/../")
+BIN_DIR="$ROOT_DIR/bin"
+COMMON_DIR="$BIN_DIR/common"
 
-. "$COMMON/init.sh"
-. "$COMMON/functions.sh"
+. "$COMMON_DIR/init.sh"
+. "$COMMON_DIR/functions.sh"
 
 init
 

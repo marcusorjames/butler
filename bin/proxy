@@ -2,10 +2,6 @@
 # proxy
 
 PACKAGE="butler proxy"
-DIR="$DIR/bin"
-COMMON=$DIR/common
-
-. "$COMMON/colours.sh"
 
 print_usage() {
   echo ""

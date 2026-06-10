@@ -3,10 +3,10 @@
 
 PACKAGE="butler site convert"
 
-. "$COMMON/fzfread.sh"
-. "$COMMON/colours.sh"
-. "$COMMON/functions.sh"
-. "$COMMON/statusline.sh"
+. "$COMMON_DIR/fzfread.sh"
+. "$COMMON_DIR/colours.sh"
+. "$COMMON_DIR/functions.sh"
+. "$COMMON_DIR/statusline.sh"
 
 print_usage() {
   echo "Convert a single-project site to multi-project"
