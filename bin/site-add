@@ -6,9 +6,10 @@
 
 PACKAGE="butler site add"
 
-. $COMMON/fzfread.sh
-. $COMMON/colours.sh
-. $COMMON/statusline.sh
+. "$COMMON_DIR/fzfread.sh"
+. "$COMMON_DIR/colours.sh"
+. "$COMMON_DIR/functions.sh"
+. "$COMMON_DIR/statusline.sh"
 
 print_usage() {
   echo "Add a new site"
@@ -25,34 +26,56 @@ print_usage() {
   echo "  -m, --multi         create a multi-project site"
 }
 
-check_template_exists() {
-  [ ! -d $1 ] && echo -e "${CError}Error: Template does not exist" &&
-    echo " " &&
-    echo -e "${CWarn}Available templates are $(ls -m $DIR/../templates/)" &&
-    exit 1
+add_multi() {
+  local site_dir="$1" template_dir="$2"
+  local -n _names="$3" _dirs="$4" _repos="$5"
+
+  statusLine "Creating Site directory" "done"
+  cp -r "$template_dir" "$site_dir/"
+  mkdir -p "$site_dir/app"
+
+  local i proj_name proj_dir proj_repo
+  for i in "${!_names[@]}"; do
+    proj_name="${_names[$i]}"
+    proj_dir="${_dirs[$i]}"
+    proj_repo="${_repos[$i]}"
+    mkdir -p "$proj_dir"
+    [ -n "$proj_repo" ] && git clone "$proj_repo" "$proj_dir"
+    ln -s "$proj_dir" "$site_dir/app/$proj_name"
+    statusLine "Linked $proj_name" "done"
+  done
+
+  local IFS=,
+  write_butler_projects "$site_dir" "${_names[*]}"
+  statusLine "Wrote BUTLER_PROJECTS to site .env" "done"
+  statusLine "Multi-project site created" "done"
 }
 
-check_dir() {
-  [ -d $1 ] && echo -e "${CError}Error: $2 already exists" && exit 1
+add_single() {
+  local site_dir="$1" template_dir="$2" project_dir="$3" repository="$4"
+
+  statusLine "Creating Site directory" "done"
+  cp -r "$template_dir" "$site_dir/"
+
+  statusLine "Creating Project directory" "done"
+  mkdir -p "$project_dir"
+  [ -n "$repository" ] && git clone "$repository" "$project_dir"
+
+  statusLine "Linking Project to Site" "done"
+  ln -s "$project_dir" "$site_dir/app"
 }
 
 main() {
 
-  dry_run=false
   help=false
   multi=false
   name=''
   context=''
   repository=''
   template=''
-  verbose=false
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
-    -d | --dry-run)
-      dry_run=true
-      shift
-      ;;
     -h | --help)
       help=true
       shift
@@ -77,10 +100,6 @@ main() {
       template="$2"
       shift 2
       ;;
-    -v | --verbose)
-      verbose=true
-      shift
-      ;;
     --)
       shift
       break
@@ -91,42 +110,35 @@ main() {
 
   $help && print_usage && exit 0
 
-  template_root="$DIR/../templates"
+  template_root="$ROOT_DIR/templates"
 
-  [ -z $template ] && fzf_read $template_root "Specify a template: " template
-  [ -z $template ] && template="NULL" # Because the root dir is a directory
+  [ -z "$template" ] && fzf_read "$template_root" "Specify a template: " template
+  [ -z "$template" ] && template="NULL" # Because the root dir is a directory
 
-  template_dir="$template_root/$template"
+  if ! template_dir="$(get_template_dir "$template")"; then
+    die_with_error "Template ${CWarn}$template${Color_Off} does not exist. Available: $(ls -m "$template_root/")"
+  fi
 
-  check_template_exists $template_dir
-
-  [ -z $name ] && read -p "Specify a name: " name
+  [ -z "$name" ] && read -rp "Specify a name: " name
   site_dir="$SITES_DIR/$name"
-  check_dir $site_dir "Site"
+  site_exists "$name" && die_with_error "Site ${CWarn}$name${Color_Off} already exists"
 
-  $BUTLER_REQUIRED_CONTEXT && [ -z "$context" ] && read -p "Specify a context: " context
+  $BUTLER_REQUIRED_CONTEXT && [ -z "$context" ] && read -rp "Specify a context: " context
 
   [[ ! "$context" =~ ^[[:alpha:]]*$ ]] && echo -e "${CError}Context must be alphabetic" && exit 1
 
-  statusLine "Creating Site directory" "done"
-  cp -r "$template_dir" "$site_dir/"
-
   if $multi; then
-    # Multi-project: app/ is a directory containing named symlinks
-    mkdir -p "$site_dir/app"
-    project_names=""
+    # Multi-project: collect all input first, then execute
+    local proj_names=() proj_dirs=() proj_repos=()
     while true; do
       read -r -p "Project name (leave blank to finish): " proj_name
       [ -z "$proj_name" ] && break
 
-      proj_context_dir="$PROJECTS_DIR"
-      [ -n "$context" ] && proj_context_dir="$proj_context_dir/$context"
-      proj_dir="$proj_context_dir/$proj_name"
+      proj_dir="$PROJECTS_DIR"
+      [ -n "$context" ] && proj_dir="$proj_dir/$context"
+      proj_dir="$proj_dir/$proj_name"
 
-      proj_dir_exists=false
-      [ -d "$proj_dir" ] && proj_dir_exists=true
-
-      if $proj_dir_exists; then
+      if [ -d "$proj_dir" ]; then
         if [ -d "$proj_dir/.git" ]; then
           existing_repo_url=$(git -C "$proj_dir" config --get remote.origin.url)
           read -r -p "$(echo -e "Project dir $Green$proj_dir$Color_Off already exists (repo: $Green$existing_repo_url$Color_Off) — use existing? [Yn] ")" -n 1
@@ -136,21 +148,21 @@ main() {
           echo
         fi
         [[ ! $REPLY =~ ^[Yy]$ ]] && continue
+        proj_repos+=("")
       else
         read -r -p "Repository URL for $proj_name (leave blank to skip clone): " proj_repo
-        mkdir -p "$proj_dir"
-        [ -n "$proj_repo" ] && git clone "$proj_repo" "$proj_dir"
+        if [ -n "$proj_repo" ] && ! git ls-remote "$proj_repo" >/dev/null 2>&1; then
+          echo -e "${CError}Cannot reach repository $proj_repo, skipping${Color_Off}"
+          continue
+        fi
+        proj_repos+=("$proj_repo")
       fi
 
-      ln -s "$proj_dir" "$site_dir/app/$proj_name"
-      statusLine "Linked $proj_name" "done"
-
-      [ -n "$project_names" ] && project_names="$project_names,"
-      project_names="$project_names$proj_name"
+      proj_names+=("$proj_name")
+      proj_dirs+=("$proj_dir")
     done
 
-    [ -n "$project_names" ] && echo "BUTLER_PROJECTS=$project_names" >>"$site_dir/.env"
-    statusLine "Multi-project site created" "done"
+    [ "${#proj_names[@]}" -gt 0 ] && add_multi "$site_dir" "$template_dir" proj_names proj_dirs proj_repos
   else
     # Single-project: app is a symlink to the project directory
     [ -z "$repository" ] && read -r -p "Specify a repository: " repository
@@ -171,24 +183,16 @@ main() {
         echo
       fi
       [[ ! $REPLY =~ ^[Yy]$ ]] && exit 0
-    fi
-
-    if [ "$project_dir_exists" = false ]; then
-      statusLine "Creating Project directory" "done"
-      mkdir -p "$project_dir"
-      [ -n "$repository" ] && git clone "$repository" "$project_dir"
-    else
       statusLine "Creating Project directory" "skipped"
       statusLine "Cloning into $project_dir" "skipped"
+      statusLine "Linking Project to Site" "done"
+      ln -s "$project_dir" "$site_dir/app"
+    else
+      add_single "$site_dir" "$template_dir" "$project_dir" "$repository"
     fi
-
-    statusLine "Linking Project to Site" "done"
-    ln -s "$project_dir" "$site_dir/app"
   fi
 
 }
-
-main "$@"
 
 # TODOS:
 # - Chown $USER:www-data

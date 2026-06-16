@@ -20,9 +20,9 @@ fmt:
 
 # Lint all shell scripts and markdown
 lint:
-    find . -name '*.sh' -o -name 'butler' | grep -v '.git' | xargs shellcheck -x
+    find bin scripts -maxdepth 2 -type f | xargs shellcheck -x butler
     markdownlint-cli2 "**/*.md"
 
 # Run test suite
 test:
-    bats tests/
+    bats --recursive tests/
