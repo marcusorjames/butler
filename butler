@@ -26,10 +26,6 @@ print_usage() {
   echo " "
   echo -e "${Blue}Commands:"
   echo " "
-  echo -e "${Yellow}Management:"
-  echo -e ""
-  echo -e "${Green}install              ${Color_Off}Install butler"
-  echo -e ""
   echo -e "${Yellow}Site Management:"
   echo -e ""
   echo -e "${Green}site add             ${Color_Off}Add a new site"
@@ -72,7 +68,7 @@ export HOST_GID
 
 # Non-site-aware commands skip site resolution; everything else resolves
 case $function in
-install | site | ftp | sftp | mysql) ;;
+site | ftp | sftp | mysql) ;;
 *) resolve_site "$1" && shift ;;
 esac
 
@@ -83,8 +79,6 @@ exec | php | exect | shell | composer)
 esac
 
 case $function in
-# Management
-'install') . "$BIN_DIR/install" "$@" ;;
 'site') . "$BIN_DIR/site" "$@" ;;
 
 # Site commands (site resolved above)
