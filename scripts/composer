@@ -1,2 +1,2 @@
 #!/bin/sh
-docker run -it --rm -v $CURRENT_SITE_DIR/app:/app composer "$@"
+docker run -it --rm -v "$CURRENT_SITE_DIR/app:/app" composer "$@"

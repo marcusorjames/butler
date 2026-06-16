@@ -2,10 +2,9 @@
 # site link subcommand
 
 PACKAGE="butler site link"
-COMMON=$DIR/common
 
-. "$COMMON/functions.sh"
-. "$COMMON/statusline.sh"
+. "$COMMON_DIR/functions.sh"
+. "$COMMON_DIR/statusline.sh"
 
 print_usage() {
   echo "Link a site or all sites"
@@ -140,4 +139,3 @@ main() {
   fi
 }
 
-main "$@"

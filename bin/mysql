@@ -1,16 +1,13 @@
 #!/bin/bash
 # mysql
 
-PACKAGE="butler mysql"
-DIR="$DIR/bin"
-
 # Ensure we are not in a docker directory as this breaks --project-directory
 # docker-compose commands!
-cd $DIR
+cd "$BIN_DIR" || exit
 
 # Ensure mysql is up
-[ ! "$(docker ps | grep mysql)" ] && docker compose \
-  --project-directory "$DIR/../common/mysql" up -d
+docker ps | grep -q mysql || docker compose \
+  --project-directory "$ROOT_DIR/common/mysql" up -d
 
 function="$1"
 shift
@@ -21,6 +18,6 @@ args=("$@")
 mysql_password="${MYSQL_PASSWORD:-secret}"
 
 case $function in
-'log') . $DIR/mysql-log ;;
-*) docker compose --project-directory "$DIR/../common/mysql" exec mysql mariadb --password="$mysql_password" "${args[@]}" ;;
+'log') . "$BIN_DIR/mysql-log" ;;
+*) docker compose --project-directory "$ROOT_DIR/common/mysql" exec mysql mariadb --password="$mysql_password" "${args[@]}" ;;
 esac
