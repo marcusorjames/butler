@@ -1,28 +1,26 @@
-version: "3"
-
 services:
-   php:
-     image: andreccosta/wordpress-xdebug:latest
-     volumes:
-        - ./app:/var/www/html
-     expose:
-       - 80
-     environment:
-       VIRTUAL_HOST: wordpress.local
-       XDEBUG_MODE: debug
-       XDEBUG_CONFIG: start_with_request=yes discover_client_host=1 log_level=0
-     container_name: wordpress
-     networks:
-       - default
-       - mysql
-       - mailhog
+  php:
+    image: andreccosta/wordpress-xdebug:latest
+    container_name: "${BUTLER_PROJECT}.${BUTLER_TLD:-test}"
+    volumes:
+      - ./app:/var/www/html
+    expose:
+      - 80
+    environment:
+      VIRTUAL_HOST: "${BUTLER_PROJECT}.${BUTLER_TLD:-test}"
+      XDEBUG_MODE: debug
+      XDEBUG_CONFIG: start_with_request=yes discover_client_host=1 log_level=0
+    networks:
+      - default
+      - mysql
+      - mailhog
 networks:
   mysql:
-    external:
-      name: mysql
+    external: true
+    name: mysql
   default:
-    external:
-      name: nginx-proxy
+    external: true
+    name: nginx-proxy
   mailhog:
-    external:
-      name: mailhog
+    external: true
+    name: mailhog

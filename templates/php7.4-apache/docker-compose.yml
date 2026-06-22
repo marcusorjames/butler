@@ -1,20 +1,25 @@
-version: '3'
 services:
   php:
     build:
       context: .
       dockerfile: PHP.DockerFile
+    container_name: "${BUTLER_PROJECT}.${BUTLER_TLD:-test}"
     volumes:
       - ./app:/var/www/html
       - ./docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
     expose:
-     - 80
+      - 80
     extra_hosts:
-      - 'host.docker.internal:host-gateway'
+      - host.docker.internal:host-gateway
     environment:
-      VIRTUAL_HOST: <domain>
+      VIRTUAL_HOST: "${BUTLER_PROJECT}.${BUTLER_TLD:-test}"
       APACHE_DOCUMENT_ROOT: /var/www/html/public
+    secrets:
+      - user_ssh
 networks:
   default:
-    external:
-      name: nginx-proxy
+    external: true
+    name: nginx-proxy
+secrets:
+  user_ssh:
+    file: ~/.ssh
