@@ -18,6 +18,8 @@ services:
       - default
       - mysql
       - mailhog
+    secrets:
+      - user_ssh
 networks:
   mailhog:
     external: true
@@ -28,3 +30,6 @@ networks:
   default:
     external: true
     name: nginx-proxy
+secrets:
+  user_ssh:
+    file: ~/.ssh

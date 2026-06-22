@@ -14,7 +14,12 @@ services:
     environment:
       VIRTUAL_HOST: "${BUTLER_PROJECT}.${BUTLER_TLD:-test}"
       APACHE_DOCUMENT_ROOT: /var/www/html/public
+    secrets:
+      - user_ssh
 networks:
   default:
     external: true
     name: nginx-proxy
+secrets:
+  user_ssh:
+    file: ~/.ssh
