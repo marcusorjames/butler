@@ -60,3 +60,17 @@ die_with_error() {
   echo -e "${CError}Error:${Color_Off} $*" >&2
   exit 1
 }
+
+dns_is_configured() {
+  local tld="${BUTLER_TLD:-test}"
+  local butler_conf
+
+  if [ "$(uname -s)" = "Darwin" ]; then
+    butler_conf="$(brew --prefix 2>/dev/null)/etc/dnsmasq.d/butler.conf"
+  else
+    butler_conf="/etc/dnsmasq.d/butler.conf"
+  fi
+
+  [ -f "$butler_conf" ] && grep -q "address=/\.$tld/" "$butler_conf" 2>/dev/null &&
+    systemctl is-active --quiet dnsmasq 2>/dev/null
+}
