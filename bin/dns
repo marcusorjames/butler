@@ -1,0 +1,354 @@
+#!/bin/bash
+# dns subcommand — manage dnsmasq wildcard resolution for BUTLER_TLD
+
+PACKAGE="butler dns"
+DNSMASQ_PORT=5300
+
+print_usage() {
+  echo "Manage automatic DNS resolution for the butler TLD"
+  echo " "
+  echo "SYNOPSIS:"
+  echo " "
+  echo "$PACKAGE COMMAND"
+  echo " "
+  echo -e "${Yellow}Commands:"
+  echo -e ""
+  echo -e "${Green}install    ${Color_Off}Configure dnsmasq to resolve *.\${BUTLER_TLD:-test} locally"
+  echo -e "${Green}uninstall  ${Color_Off}Remove butler dnsmasq config and DNS routing"
+  echo -e "${Green}status     ${Color_Off}Show current DNS configuration state"
+}
+
+# Detect platform: macos | linux-systemd | linux-nm | wsl-no-systemd | unknown
+detect_platform() {
+  local os
+  os="$(uname -s)"
+  case "$os" in
+    Darwin)
+      echo "macos"
+      ;;
+    Linux)
+      if grep -qi microsoft /proc/version 2>/dev/null; then
+        if systemctl is-active --quiet systemd-resolved 2>/dev/null; then
+          echo "linux-systemd"
+        else
+          echo "wsl-no-systemd"
+        fi
+      elif systemctl is-active --quiet systemd-resolved 2>/dev/null; then
+        echo "linux-systemd"
+      elif systemctl is-active --quiet NetworkManager 2>/dev/null; then
+        echo "linux-nm"
+      else
+        echo "unknown"
+      fi
+      ;;
+    *)
+      echo "unknown"
+      ;;
+  esac
+}
+
+detect_package_manager() {
+  if [ "$(uname -s)" = "Darwin" ]; then
+    echo "brew"
+    return
+  fi
+  if command -v pacman >/dev/null 2>&1; then echo "pacman"
+  elif command -v apt-get >/dev/null 2>&1; then echo "apt"
+  elif command -v dnf >/dev/null 2>&1; then echo "dnf"
+  elif command -v brew >/dev/null 2>&1; then echo "brew"
+  else echo "unknown"
+  fi
+}
+
+dnsmasq_conf_path() {
+  if [ "$(uname -s)" = "Darwin" ]; then
+    echo "$(brew --prefix 2>/dev/null)/etc/dnsmasq.d/butler.conf"
+  else
+    echo "/etc/dnsmasq.d/butler.conf"
+  fi
+}
+
+dnsmasq_conf_dir() {
+  if [ "$(uname -s)" = "Darwin" ]; then
+    echo "$(brew --prefix 2>/dev/null)/etc/dnsmasq.d"
+  else
+    echo "/etc/dnsmasq.d"
+  fi
+}
+
+# Check all dnsmasq configs for an existing address entry for the TLD (excluding butler's own)
+find_conflicting_config() {
+  local tld="$1"
+  local butler_conf conf_dir
+  butler_conf="$(dnsmasq_conf_path)"
+  conf_dir="$(dnsmasq_conf_dir)"
+  local pattern="address=/\.$tld/"
+  local search_dirs=("$conf_dir" "/etc/dnsmasq.conf")
+
+  if [ "$(uname -s)" = "Darwin" ]; then
+    local brew_prefix
+    brew_prefix="$(brew --prefix 2>/dev/null)"
+    search_dirs=("$conf_dir" "$brew_prefix/etc/dnsmasq.conf")
+  fi
+
+  for path in "${search_dirs[@]}"; do
+    [ -e "$path" ] || continue
+    if [ -f "$path" ]; then
+      [ "$path" = "$butler_conf" ] && continue
+      grep -q "$pattern" "$path" 2>/dev/null && echo "$path" && return 0
+    elif [ -d "$path" ]; then
+      for conf in "$path"/*.conf; do
+        [ -f "$conf" ] || continue
+        [ "$conf" = "$butler_conf" ] && continue
+        grep -q "$pattern" "$conf" 2>/dev/null && echo "$conf" && return 0
+      done
+    fi
+  done
+  return 1
+}
+
+cmd_install() {
+  local tld="${BUTLER_TLD:-test}"
+  local platform
+  platform="$(detect_platform)"
+
+  if [ "$platform" = "wsl-no-systemd" ]; then
+    echo -e "${CWarn}WSL detected without systemd.${Color_Off} Enable it:"
+    echo ""
+    echo "  1. Edit /etc/wsl.conf and add:"
+    echo "       [boot]"
+    echo "       systemd=true"
+    echo "  2. From Windows: wsl --shutdown"
+    echo "  3. Reopen your terminal, then re-run: butler dns install"
+    echo ""
+    echo -e "  If ${Green}wsl --shutdown${Color_Off} fails, update WSL first: ${Green}wsl --update${Color_Off}"
+    return 1
+  fi
+
+  if [ "$platform" = "unknown" ]; then
+    echo -e "${CError}Unsupported platform.${Color_Off} Configure dnsmasq manually:"
+    echo "  address=/.$tld/127.0.0.1"
+    return 1
+  fi
+
+  # Check dnsmasq is installed (binary + service unit)
+  local dnsmasq_missing=false
+  ! command -v dnsmasq >/dev/null 2>&1 && dnsmasq_missing=true
+  # On Linux, also require the systemd service unit
+  if [ "$platform" != "macos" ] && ! $dnsmasq_missing; then
+    systemctl cat dnsmasq.service >/dev/null 2>&1 || dnsmasq_missing=true
+  fi
+  if $dnsmasq_missing; then
+    local pm
+    pm="$(detect_package_manager)"
+    echo -e "${CError}dnsmasq is not installed.${Color_Off} Install it first:"
+    case "$pm" in
+      brew)   echo "  brew install dnsmasq" ;;
+      pacman) echo "  sudo pacman -S dnsmasq" ;;
+      apt)    echo "  sudo apt-get install dnsmasq" ;;
+      dnf)    echo "  sudo dnf install dnsmasq" ;;
+      *)      echo "  Install dnsmasq using your system package manager" ;;
+    esac
+    return 1
+  fi
+
+  # Guard against existing config from another tool
+  local conflict
+  if conflict="$(find_conflicting_config "$tld")"; then
+    echo -e "${CError}Existing dnsmasq config for .$tld found:${Color_Off} $conflict"
+    echo "Remove or update it manually to avoid conflicts."
+    return 1
+  fi
+
+  # Pre-flight: check port availability
+  if ss -tlnup 2>/dev/null | grep -q ":$DNSMASQ_PORT"; then
+    echo -e "${CError}Port $DNSMASQ_PORT is already in use:${Color_Off}"
+    ss -tlnup | grep ":$DNSMASQ_PORT"
+    echo "Change DNSMASQ_PORT in bin/dns or free the port first."
+    return 1
+  fi
+
+  local butler_conf conf_dir
+  butler_conf="$(dnsmasq_conf_path)"
+  conf_dir="$(dnsmasq_conf_dir)"
+
+  # On Linux, ensure /etc/dnsmasq.conf includes the conf-dir drop-in directory
+  if [ "$platform" != "macos" ] && [ -f /etc/dnsmasq.conf ]; then
+    if grep -q "^#conf-dir=/etc/dnsmasq.d/,\*\.conf" /etc/dnsmasq.conf; then
+      echo "Enabling conf-dir in /etc/dnsmasq.conf..."
+      sudo sed -i 's|^#conf-dir=/etc/dnsmasq.d/,\*\.conf|conf-dir=/etc/dnsmasq.d/,*.conf|' /etc/dnsmasq.conf
+    elif ! grep -q "^conf-dir=/etc/dnsmasq.d/" /etc/dnsmasq.conf; then
+      echo "Adding conf-dir to /etc/dnsmasq.conf..."
+      echo "conf-dir=/etc/dnsmasq.d/,*.conf" | sudo tee -a /etc/dnsmasq.conf >/dev/null
+    fi
+  fi
+
+  # Write dnsmasq config (always overwrite — install is idempotent)
+  echo -e "Writing dnsmasq config to ${Green}$butler_conf${Color_Off}..."
+  sudo mkdir -p "$conf_dir"
+  sudo tee "$butler_conf" >/dev/null <<EOF
+address=/.$tld/127.0.0.1
+listen-address=127.0.0.1
+port=$DNSMASQ_PORT
+bind-interfaces
+no-resolv
+no-hosts
+EOF
+
+  # Write routing config and restart services
+  case "$platform" in
+    macos)
+      echo -e "Writing resolver file ${Green}/etc/resolver/$tld${Color_Off}..."
+      sudo mkdir -p /etc/resolver
+      sudo tee "/etc/resolver/$tld" >/dev/null <<EOF
+nameserver 127.0.0.1
+port $DNSMASQ_PORT
+EOF
+      brew services restart dnsmasq
+      ;;
+    linux-systemd)
+      echo -e "Writing resolved drop-in to ${Green}/etc/systemd/resolved.conf.d/butler.conf${Color_Off}..."
+      sudo mkdir -p /etc/systemd/resolved.conf.d
+      sudo tee /etc/systemd/resolved.conf.d/butler.conf >/dev/null <<EOF
+[Resolve]
+DNS=127.0.0.1:$DNSMASQ_PORT
+Domains=~$tld
+EOF
+      if ! sudo systemctl enable --now dnsmasq; then
+        echo -e "${CError}Failed to start dnsmasq.${Color_Off} Check: sudo systemctl status dnsmasq"
+        return 1
+      fi
+      sudo systemctl restart systemd-resolved
+      ;;
+    linux-nm)
+      echo -e "Writing NetworkManager dnsmasq drop-in..."
+      sudo mkdir -p /etc/NetworkManager/dnsmasq.d
+      sudo tee /etc/NetworkManager/dnsmasq.d/butler.conf >/dev/null <<EOF
+address=/.$tld/127.0.0.1
+port=$DNSMASQ_PORT
+EOF
+      if ! grep -q "^dns=dnsmasq" /etc/NetworkManager/NetworkManager.conf 2>/dev/null; then
+        sudo sed -i '/^\[main\]/a dns=dnsmasq' /etc/NetworkManager/NetworkManager.conf
+      fi
+      sudo systemctl restart NetworkManager
+      ;;
+  esac
+
+  echo -e "${CSuccess}Done.${Color_Off} *.$tld resolves to 127.0.0.1"
+}
+
+cmd_uninstall() {
+  local tld="${BUTLER_TLD:-test}"
+  local platform
+  platform="$(detect_platform)"
+  local butler_conf
+  butler_conf="$(dnsmasq_conf_path)"
+
+  if [ ! -f "$butler_conf" ] && [ ! -f "/etc/systemd/resolved.conf.d/butler.conf" ] && [ ! -f "/etc/resolver/$tld" ]; then
+    echo "Nothing to uninstall."
+    return 0
+  fi
+
+  [ -f "$butler_conf" ] && sudo rm -f "$butler_conf" && echo "Removed $butler_conf"
+
+  case "$platform" in
+    macos)
+      sudo rm -f "/etc/resolver/$tld" && echo "Removed /etc/resolver/$tld"
+      brew services restart dnsmasq
+      ;;
+    linux-systemd)
+      sudo rm -f /etc/systemd/resolved.conf.d/butler.conf && echo "Removed /etc/systemd/resolved.conf.d/butler.conf"
+      sudo systemctl restart systemd-resolved
+      systemctl is-active --quiet dnsmasq && sudo systemctl restart dnsmasq
+      ;;
+    linux-nm)
+      sudo rm -f /etc/NetworkManager/dnsmasq.d/butler.conf && echo "Removed /etc/NetworkManager/dnsmasq.d/butler.conf"
+      sudo systemctl restart NetworkManager
+      ;;
+  esac
+
+  echo -e "${CSuccess}Done.${Color_Off} DNS routing for .$tld removed"
+}
+
+cmd_status() {
+  local tld="${BUTLER_TLD:-test}"
+  local platform
+  platform="$(detect_platform)"
+  local butler_conf
+  butler_conf="$(dnsmasq_conf_path)"
+
+  echo -e "TLD:       ${Green}.$tld${Color_Off}"
+  echo -e "Platform:  ${Green}$platform${Color_Off}"
+
+  if command -v dnsmasq >/dev/null 2>&1; then
+    echo -e "dnsmasq:   ${CSuccess}installed${Color_Off} ($(dnsmasq --version 2>&1 | head -1))"
+  else
+    echo -e "dnsmasq:   ${CError}not installed${Color_Off}"
+  fi
+
+  if systemctl is-active --quiet dnsmasq 2>/dev/null || \
+     brew services list 2>/dev/null | grep -q "dnsmasq.*started"; then
+    echo -e "running:   ${CSuccess}yes${Color_Off}"
+  else
+    echo -e "running:   ${CWarn}no${Color_Off}"
+  fi
+
+  if [ -f "$butler_conf" ] && grep -q "address=/\.$tld/" "$butler_conf" 2>/dev/null; then
+    echo -e "config:    ${CSuccess}$butler_conf${Color_Off}"
+  else
+    echo -e "config:    ${CWarn}not configured${Color_Off}"
+  fi
+
+  # Check routing glue
+  case "$platform" in
+    macos)
+      if [ -f "/etc/resolver/$tld" ]; then
+        echo -e "resolver:  ${CSuccess}/etc/resolver/$tld${Color_Off}"
+      else
+        echo -e "resolver:  ${CWarn}missing (/etc/resolver/$tld)${Color_Off}"
+      fi
+      ;;
+    linux-systemd)
+      if [ -f /etc/systemd/resolved.conf.d/butler.conf ]; then
+        echo -e "routing:   ${CSuccess}/etc/systemd/resolved.conf.d/butler.conf${Color_Off}"
+      else
+        echo -e "routing:   ${CWarn}missing${Color_Off}"
+      fi
+      ;;
+    linux-nm)
+      if [ -f /etc/NetworkManager/dnsmasq.d/butler.conf ]; then
+        echo -e "routing:   ${CSuccess}/etc/NetworkManager/dnsmasq.d/butler.conf${Color_Off}"
+      else
+        echo -e "routing:   ${CWarn}missing${Color_Off}"
+      fi
+      ;;
+  esac
+
+  # Verify resolution
+  if command -v dig >/dev/null 2>&1; then
+    local result
+    result="$(dig +short "test.$tld" "@127.0.0.1" -p "$DNSMASQ_PORT" 2>/dev/null)"
+    if [ "$result" = "127.0.0.1" ]; then
+      echo -e "resolves:  ${CSuccess}test.$tld → 127.0.0.1${Color_Off}"
+    else
+      echo -e "resolves:  ${CWarn}test.$tld did not resolve (dnsmasq may not be running)${Color_Off}"
+    fi
+  fi
+}
+
+main() {
+  [ ! "$#" -gt 0 ] && print_usage && exit 1
+
+  case "$1" in
+    install)   cmd_install ;;
+    uninstall) cmd_uninstall ;;
+    status)    cmd_status ;;
+    -h | --help) print_usage ;;
+    *)
+      echo -e "${CError}Unknown command:${Color_Off} $1"
+      print_usage
+      exit 1
+      ;;
+  esac
+}
+

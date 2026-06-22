@@ -49,6 +49,7 @@ print_usage() {
   echo -e ""
   echo -e "${Yellow}Other Commands:"
   echo -e ""
+  echo -e "${Green}dns                  ${Color_Off}Manage automatic DNS resolution"
   echo -e "${Green}ftp                  ${Color_Off}Run ftp server"
   echo -e "${Green}sftp                 ${Color_Off}Run sftp server"
   echo -e "${Green}mysql                ${Color_Off}Run mysql shell"
@@ -68,7 +69,7 @@ export HOST_GID
 
 # Non-site-aware commands skip site resolution; everything else resolves
 case $function in
-site | ftp | sftp | mysql) ;;
+site | ftp | sftp | mysql | dns) ;;
 *) resolve_site "$1" && shift ;;
 esac
 
@@ -95,6 +96,7 @@ case $function in
 'docker-compose') . "$BIN_DIR/docker-compose" "$@" ;;
 
 # Other
+'dns') . "$BIN_DIR/dns" && main "$@" ;;
 'ftp') . "$BIN_DIR/ftp" "$@" ;;
 'sftp') . "$BIN_DIR/sftp" "$@" ;;
 'mysql') . "$BIN_DIR/mysql" "$@" ;;
