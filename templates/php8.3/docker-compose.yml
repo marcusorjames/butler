@@ -3,10 +3,24 @@ services:
     build:
       context: .
       dockerfile: PHP.DockerFile
+    container_name: "${BUTLER_PROJECT}"
     volumes:
       - ./app:/var/www/html
       - ./docker-php-ext-xdebug.ini:/usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-    expose:
-     - 80
     extra_hosts:
-      - 'host.docker.internal:host-gateway'
+      - host.docker.internal:host-gateway
+    networks:
+      - mysql
+      - mailhog
+    secrets:
+      - user_ssh
+networks:
+  mailhog:
+    external: true
+    name: mailhog
+  mysql:
+    external: true
+    name: mysql
+secrets:
+  user_ssh:
+    file: ~/.ssh
