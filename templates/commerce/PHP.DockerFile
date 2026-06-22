@@ -2,7 +2,6 @@ FROM php:7.4-apache
 
 RUN useradd -m user
 RUN ln -s /run/secrets/user_ssh /home/user/.ssh
-RUN chown -R user:user /home/user/.ssh
 
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 

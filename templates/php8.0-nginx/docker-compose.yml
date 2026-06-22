@@ -20,6 +20,8 @@ services:
     networks:
       - mysql
       - default
+    secrets:
+      - user_ssh
 networks:
   mysql:
     external: true
@@ -27,3 +29,6 @@ networks:
   default:
     external: true
     name: nginx-proxy
+secrets:
+  user_ssh:
+    file: ~/.ssh

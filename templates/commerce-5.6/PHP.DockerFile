@@ -2,7 +2,6 @@ FROM php:5.6-apache
 
 RUN useradd -m user
 RUN ln -s /run/secrets/user_ssh /home/user/.ssh
-RUN chown -R user:user /home/user/.ssh
 
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 
@@ -19,8 +18,8 @@ RUN sed -i -e 's/deb.debian.org/archive.debian.org/g' \
            -e 's|security.debian.org|archive.debian.org/|g' \
            -e '/stretch-updates/d' /etc/apt/sources.list
 
-RUN apt-get -y update \
-    && apt-get install -y libicu-dev libpng-dev git libzip-dev
+RUN apt-get -y -o Acquire::Check-Valid-Until=false update \
+    && apt-get install -y --allow-unauthenticated libicu-dev libpng-dev git libzip-dev
 
 RUN docker-php-ext-install pdo pdo_mysql gd intl zip
 RUN git clone -b XDEBUG_2_5_5 https://github.com/xdebug/xdebug.git /root/xdebug \
