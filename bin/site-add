@@ -192,6 +192,11 @@ main() {
     fi
   fi
 
+  if ! dns_is_configured; then
+    local tld="${BUTLER_TLD:-test}"
+    echo -e "${CWarn}Tip:${Color_Off} add ${Green}127.0.0.1 $name.$tld${Color_Off} to /etc/hosts, or run ${Green}butler dns install${Color_Off} for automatic .$tld resolution"
+  fi
+
 }
 
 # TODOS:
