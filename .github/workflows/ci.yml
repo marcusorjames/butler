@@ -17,9 +17,7 @@ jobs:
         run: shfmt -d -i 2 butler bin/ scripts/
 
       - name: Lint
-        run: |
-          find bin scripts -maxdepth 2 -type f | xargs shellcheck -x butler
-          markdownlint-cli2 "**/*.md"
+        run: just lint
 
       - name: Test
-        run: bats --recursive tests/
+        run: just test
