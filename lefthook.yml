@@ -1,12 +1,10 @@
 pre-commit:
-  parallel: true
   commands:
     shfmt:
-      glob: "*.sh"
-      run: shfmt -d -i 2 {staged_files}
+      run: shfmt -w -i 2 butler bin/ scripts/
+      stage_fixed: true
     shellcheck:
-      glob: "*.sh"
-      run: shellcheck -x --severity=warning {staged_files}
+      run: find bin scripts -maxdepth 2 -type f | xargs shellcheck -x --severity=warning butler
     markdownlint:
       glob: "*.md"
       run: markdownlint-cli2 {staged_files}
