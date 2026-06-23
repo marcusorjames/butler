@@ -138,4 +138,3 @@ main() {
     link_single "$site" "$site_dir" "$project_path" "$fix"
   fi
 }
-
