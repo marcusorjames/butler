@@ -116,4 +116,3 @@ main() {
     status_single "$site" "$site_dir" "$verbose"
   fi
 }
-

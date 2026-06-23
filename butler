@@ -76,7 +76,8 @@ esac
 # Container-targeting commands resolve which container to use
 case $function in
 exec | php | exect | shell | composer)
-  resolve_container "$1" && shift ;;
+  resolve_container "$1" && shift
+  ;;
 esac
 
 case $function in

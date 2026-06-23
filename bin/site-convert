@@ -48,7 +48,6 @@ convert_app_symlink() {
   echo "$first_proj_name"
 }
 
-
 main() {
   help=false
   site="${1:-}"

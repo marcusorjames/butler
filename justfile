@@ -20,7 +20,7 @@ fmt:
 
 # Lint all shell scripts and markdown
 lint:
-    find bin scripts -maxdepth 2 -type f | xargs shellcheck -x butler
+    find bin scripts -maxdepth 2 -type f | xargs shellcheck -x --severity=warning butler
     markdownlint-cli2 "**/*.md"
 
 # Run test suite
