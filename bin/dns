@@ -264,7 +264,7 @@ cmd_uninstall() {
   linux-systemd)
     sudo rm -f /etc/systemd/resolved.conf.d/butler.conf && echo "Removed /etc/systemd/resolved.conf.d/butler.conf"
     sudo systemctl restart systemd-resolved
-    systemctl is-active --quiet dnsmasq && sudo systemctl restart dnsmasq
+    systemctl is-active --quiet dnsmasq && sudo systemctl stop dnsmasq
     ;;
   linux-nm)
     sudo rm -f /etc/NetworkManager/dnsmasq.d/butler.conf && echo "Removed /etc/NetworkManager/dnsmasq.d/butler.conf"
