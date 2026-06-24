@@ -57,6 +57,9 @@ If `SITE` is omitted from site commands, butler infers the site from your curren
 | `butler site cd` | Change directory to a site |
 | `butler site status [SITE]` | Show status of site(s) |
 | `butler site link [SITE]` | Repair broken app symlinks |
+| `butler dns install` | Configure dnsmasq for automatic `*.test` resolution |
+| `butler dns uninstall` | Remove butler DNS configuration |
+| `butler dns status` | Show DNS configuration and resolution state |
 
 ### Site Commands
 
@@ -79,6 +82,31 @@ If `SITE` is omitted from site commands, butler infers the site from your curren
 | `butler mysql` | Open a MySQL shell |
 | `butler ftp` | Run an ephemeral FTP server |
 | `butler sftp` | Run an ephemeral SFTP server |
+
+## Local DNS
+
+Butler can configure [dnsmasq](https://thekelleys.org.uk/dnsmasq/doc.html) to resolve all `*.<BUTLER_TLD>` domains to `127.0.0.1` automatically — no manual `/etc/hosts` entries needed after `butler site add`.
+
+```bash
+butler dns install     # configure dnsmasq for *.test resolution
+butler dns uninstall   # remove butler DNS configuration
+butler dns status      # show configuration and resolution state
+```
+
+Install dnsmasq first if it is not already present (`brew install dnsmasq`, `sudo pacman -S dnsmasq`, `sudo apt install dnsmasq`, etc.), then run `butler dns install`.
+
+| Platform | Routing mechanism |
+| --- | --- |
+| macOS | `/etc/resolver/<tld>` pointing to dnsmasq on port 5300 |
+| Linux + systemd-resolved | `/etc/systemd/resolved.conf.d/butler.conf` routing `~<tld>` to dnsmasq |
+| Linux + NetworkManager | `/etc/NetworkManager/dnsmasq.d/butler.conf` |
+| WSL2 | Requires systemd enabled — `butler dns install` will guide you if it is not |
+
+Without DNS configured, add entries to `/etc/hosts` manually:
+
+```text
+127.0.0.1 mysite.test
+```
 
 ## Two-Directory Model
 
