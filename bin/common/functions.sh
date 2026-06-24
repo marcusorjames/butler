@@ -56,6 +56,38 @@ write_butler_projects() {
   fi
 }
 
+app_link_status() {
+  local link_path="$1"
+  if [ -L "$link_path" ] && [ -e "$link_path" ]; then
+    echo "ok"
+  elif [ -L "$link_path" ]; then
+    echo "broken"
+  else
+    echo "missing"
+  fi
+}
+
+assert_app_linked() {
+  local site_dir="$1" site="$2" butler_projects="$3"
+  local app_path="$site_dir/app"
+
+  if [ -n "$butler_projects" ]; then
+    local p status fix
+    for p in ${butler_projects//,/ }; do
+      status="$(app_link_status "$app_path/$p")"
+      [ "$status" = "ok" ] && continue
+      fix="$([ "$status" = "broken" ] && echo "--fix ")"
+      die_with_error "Project symlink ${CWarn}$p${Color_Off} is $status. Run: butler site link ${fix}$site"
+    done
+  else
+    local status fix
+    status="$(app_link_status "$app_path")"
+    [ "$status" = "ok" ] && return 0
+    fix="$([ "$status" = "broken" ] && echo "--fix ")"
+    die_with_error "app symlink is $status. Run: butler site link ${fix}$site"
+  fi
+}
+
 die_with_error() {
   echo -e "${CError}Error:${Color_Off} $*" >&2
   exit 1
