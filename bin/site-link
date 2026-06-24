@@ -20,14 +20,16 @@ print_usage() {
 link_single() {
   local site="$1" site_dir="$2" project_path="$3" fix="$4"
   local app_path="$site_dir/app"
+  local status
+  status="$(app_link_status "$app_path")"
 
-  if [ -L "$app_path" ] && [ -e "$app_path" ]; then
+  if [ "$status" = "ok" ]; then
     statusBadge "$site" "SKIP" "$CWarn" "already linked"
     return 0
   fi
 
   local fixed=false
-  if [ -L "$app_path" ] && [ ! -e "$app_path" ]; then
+  if [ "$status" = "broken" ]; then
     if $fix; then
       fixed=true
       rm "$app_path"
@@ -70,9 +72,11 @@ link_multi() {
       continue
     fi
 
-    if [ -L "$proj_link" ] && [ -e "$proj_link" ]; then
+    local proj_status
+    proj_status="$(app_link_status "$proj_link")"
+    if [ "$proj_status" = "ok" ]; then
       statusBadge "$p" "SKIP" "$CWarn" "already linked"
-    elif [ -L "$proj_link" ] && [ ! -e "$proj_link" ]; then
+    elif [ "$proj_status" = "broken" ]; then
       if $fix; then
         rm "$proj_link"
         ln -s "$proj_path" "$proj_link"

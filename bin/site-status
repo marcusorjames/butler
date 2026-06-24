@@ -17,17 +17,6 @@ print_usage() {
   echo "  -v, --verbose       print site directory"
 }
 
-app_link_status() {
-  local link_path="$1"
-  if [ -L "$link_path" ] && [ -e "$link_path" ]; then
-    echo "ok"
-  elif [ -L "$link_path" ]; then
-    echo "broken"
-  else
-    echo "missing"
-  fi
-}
-
 status_single() {
   local site="$1" site_dir="$2" verbose="$3"
   local app_path="$site_dir/app"
