@@ -79,6 +79,7 @@ If `SITE` is omitted from site commands, butler infers the site from your curren
 
 | Command | Description |
 | --- | --- |
+| `butler templates` | List available site templates |
 | `butler mysql` | Open a MySQL shell |
 | `butler ftp` | Run an ephemeral FTP server |
 | `butler sftp` | Run an ephemeral SFTP server |

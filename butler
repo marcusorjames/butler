@@ -51,6 +51,7 @@ print_usage() {
   echo -e "${Yellow}Other Commands:"
   echo -e ""
   echo -e "${Green}dns                  ${Color_Off}Manage automatic DNS resolution"
+  echo -e "${Green}templates            ${Color_Off}List available site templates"
   echo -e "${Green}ftp                  ${Color_Off}Run ftp server"
   echo -e "${Green}sftp                 ${Color_Off}Run sftp server"
   echo -e "${Green}mysql                ${Color_Off}Run mysql shell"
@@ -70,7 +71,7 @@ export HOST_GID
 
 # Non-site-aware commands skip site resolution; everything else resolves
 case $function in
-site | ftp | sftp | mysql | dns) ;;
+site | ftp | sftp | mysql | dns | templates) ;;
 *) resolve_site "$1" && shift ;;
 esac
 
@@ -99,6 +100,7 @@ case $function in
 
 # Other
 'dns') . "$BIN_DIR/dns" && main "$@" ;;
+'templates') . "$BIN_DIR/templates" "$@" ;;
 'ftp') . "$BIN_DIR/ftp" "$@" ;;
 'sftp') . "$BIN_DIR/sftp" "$@" ;;
 'mysql') . "$BIN_DIR/mysql" "$@" ;;
