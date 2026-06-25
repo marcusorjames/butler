@@ -1,0 +1,93 @@
+#!/bin/bash
+# site clone subcommand — clone a repo and link it to an existing site
+
+PACKAGE="butler site clone"
+
+. "$COMMON_DIR/fzfread.sh"
+. "$COMMON_DIR/functions.sh"
+. "$COMMON_DIR/statusline.sh"
+
+print_usage() {
+  echo "Clone a repository and link it to an existing site"
+  echo " "
+  echo "SYNOPSIS:"
+  echo " "
+  echo "$PACKAGE [SITE] [REPO]"
+  echo " "
+  echo "  -h, --help         print this help"
+  echo " "
+  echo "SITE and REPO are prompted interactively if not provided."
+}
+
+main() {
+  help=false
+  local args=()
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+    -h | --help)
+      help=true
+      shift
+      ;;
+    --)
+      shift
+      break
+      ;;
+    *)
+      args+=("$1")
+      shift
+      ;;
+    esac
+  done
+
+  set -- "${args[@]}"
+  local site="${1:-}" repo="${2:-}"
+
+  $help && print_usage && exit 0
+
+  if [ -z "$site" ]; then
+    fzf_read "$SITES_DIR" "Select a site: " site
+  fi
+  [ -z "$site" ] && die_with_error "No site specified"
+
+  if ! site_dir="$(get_site_dir "$site")"; then
+    die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
+  fi
+
+  # Set default project name before init_site so site.env can override it
+  export BUTLER_PROJECT="$site"
+  # init_site loads site.env + .env, sets CURRENT_PROJ_DIR and BUTLER_PROJECTS
+  init_site "$site_dir"
+
+  if [ -n "$BUTLER_PROJECTS" ]; then
+    die_with_error "Multi-project sites are not yet supported by this command"
+  fi
+
+  [ -z "$repo" ] && read -r -p "Repository URL: " repo
+  [ -z "$repo" ] && die_with_error "No repository specified"
+
+  echo "Validating repository..."
+  if ! git ls-remote "$repo" >/dev/null 2>&1; then
+    die_with_error "Cannot reach repository: $repo"
+  fi
+
+  local proj_dir="$CURRENT_PROJ_DIR"
+
+  confirm_existing_project_dir "$proj_dir" || exit 0
+
+  if [ ! -d "$proj_dir" ]; then
+    statusLine "Cloning repository" "..."
+    git clone "$repo" "$proj_dir"
+    statusLine "Cloned to $proj_dir" "done"
+  fi
+
+  local app_status
+  app_status="$(app_link_status "$site_dir/app")"
+  if [ "$app_status" = "ok" ]; then
+    statusBadge "$site" "SKIP" "$CWarn" "app already linked"
+    exit 0
+  fi
+
+  ln -s "$proj_dir" "$site_dir/app"
+  statusBadge "$site" "OK"
+}
