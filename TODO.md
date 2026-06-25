@@ -1,6 +1,5 @@
 # Butler TODO
 
-- Add command to auto link all sites
 - add ability to use in project docker compose as well - fall back to docker-composer commands like the laravel one?
 - Look at laravels one as it might help tidy up the code
 - Remove extra scripts checks from docker-compose passthrough which is only relavent to "up"
