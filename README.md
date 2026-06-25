@@ -56,7 +56,7 @@ If `SITE` is omitted from site commands, butler infers the site from your curren
 | `butler site convert [SITE]` | Convert single-project site to multi-project |
 | `butler site cd` | Change directory to a site |
 | `butler site status [SITE]` | Show status of site(s) |
-| `butler site link [SITE]` | Repair broken app symlinks |
+| `butler site link [SITE]` | Link or repair app symlinks; omit SITE to process all sites |
 | `butler dns install` | Configure dnsmasq for automatic `*.test` resolution |
 | `butler dns uninstall` | Remove butler DNS configuration |
 | `butler dns status` | Show DNS configuration and resolution state |
