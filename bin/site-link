@@ -150,8 +150,7 @@ main() {
   help=false
   fix=false
   verbose=false
-  site="$1"
-  shift
+  local args=()
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -171,9 +170,15 @@ main() {
       shift
       break
       ;;
-    *) break ;;
+    *)
+      args+=("$1")
+      shift
+      ;;
     esac
   done
+
+  set -- "${args[@]}"
+  site="${1:-}"
 
   $help && print_usage && exit 0
 
