@@ -11,10 +11,13 @@ print_usage() {
   echo " "
   echo "SYNOPSIS:"
   echo " "
-  echo "$PACKAGE NAME [OPTION]"
+  echo "$PACKAGE [NAME] [OPTION]"
   echo " "
   echo "  -h, --help         print this help"
   echo "  -f, --fix          auto fix any broken links"
+  echo "  -v, --verbose      show skipped sites when linking all"
+  echo " "
+  echo "Omit NAME to process all sites."
 }
 
 link_single() {
@@ -93,9 +96,60 @@ link_multi() {
   done
 }
 
+# Load site env and dispatch to link_single or link_multi.
+# Returns 1 (no output) if the project directory does not exist — caller decides
+# whether to error or skip silently.
+link_site() {
+  local site="$1" site_dir="$2" fix="$3"
+  local proj_path
+
+  BUTLER_PROJECTS=""
+  if [ -f "$site_dir/site.env" ]; then
+    set -a
+    . "$site_dir/site.env"
+    set +a
+  fi
+  if [ -f "$site_dir/.env" ]; then
+    set -a
+    . "$site_dir/.env"
+    set +a
+  fi
+
+  if [ -n "$BUTLER_PROJECTS" ]; then
+    link_multi "$site_dir" "$fix"
+  else
+    if ! proj_path="$(get_project_dir "$site")"; then
+      return 1
+    fi
+    link_single "$site" "$site_dir" "$proj_path" "$fix"
+  fi
+}
+
+link_all() {
+  local fix="$1" verbose="$2"
+  local site_dir site found=false
+
+  for site_dir in "$SITES_DIR"/*/; do
+    [ -d "$site_dir" ] || continue
+    site_dir="${site_dir%/}"
+    site="$(basename "$site_dir")"
+    found=true
+
+    if ! link_site "$site" "$site_dir" "$fix"; then
+      $verbose && statusBadge "$site" "SKIP" "$CWarn" "no project found"
+      continue
+    fi
+  done
+
+  if ! $found; then
+    echo "No sites found in $SITES_DIR"
+  fi
+}
+
 main() {
   help=false
   fix=false
+  verbose=false
   site="$1"
   shift
 
@@ -109,6 +163,10 @@ main() {
       fix=true
       shift
       ;;
+    -v | --verbose)
+      verbose=true
+      shift
+      ;;
     --)
       shift
       break
@@ -119,26 +177,16 @@ main() {
 
   $help && print_usage && exit 0
 
-  [ -z "$site" ] && echo -e "${CWarn}All sites is not yet implemented${Color_Off}" && exit 0
+  if [ -z "$site" ]; then
+    link_all "$fix" "$verbose"
+    exit
+  fi
 
   if ! site_dir="$(get_site_dir "$site")"; then
     die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
   fi
 
-  # Load site env to pick up BUTLER_PROJECTS if set
-  BUTLER_PROJECTS=""
-  if [ -f "$site_dir/.env" ]; then
-    set -a
-    . "$site_dir/.env"
-    set +a
-  fi
-
-  if [ -n "$BUTLER_PROJECTS" ]; then
-    link_multi "$site_dir" "$fix"
-  else
-    if ! project_path="$(get_project_dir "$site")"; then
-      die_with_error "Project ${CWarn}$site${Color_Off} doesn't exist"
-    fi
-    link_single "$site" "$site_dir" "$project_path" "$fix"
+  if ! link_site "$site" "$site_dir" "$fix"; then
+    die_with_error "Project ${CWarn}$site${Color_Off} doesn't exist"
   fi
 }
