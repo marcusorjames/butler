@@ -15,12 +15,14 @@ print_usage() {
   echo "$PACKAGE [SITE] [REPO]"
   echo " "
   echo "  -h, --help         print this help"
+  echo "  -c, --context      project context subdirectory (e.g. personal)"
   echo " "
   echo "SITE and REPO are prompted interactively if not provided."
 }
 
 main() {
   help=false
+  context=''
   local args=()
 
   while [[ $# -gt 0 ]]; do
@@ -28,6 +30,10 @@ main() {
     -h | --help)
       help=true
       shift
+      ;;
+    -c | --context)
+      context="$2"
+      shift 2
       ;;
     --)
       shift
@@ -63,6 +69,9 @@ main() {
     die_with_error "Multi-project sites are not yet supported by this command"
   fi
 
+  $BUTLER_REQUIRED_CONTEXT && [ -z "$context" ] && read -rp "Specify a context: " context
+  [[ ! "$context" =~ ^[[:alpha:]]*$ ]] && die_with_error "Context must be alphabetic"
+
   [ -z "$repo" ] && read -r -p "Repository URL: " repo
   [ -z "$repo" ] && die_with_error "No repository specified"
 
@@ -71,7 +80,9 @@ main() {
     die_with_error "Cannot reach repository: $repo"
   fi
 
-  local proj_dir="$CURRENT_PROJ_DIR"
+  local proj_dir="$PROJECTS_DIR"
+  [ -n "$context" ] && proj_dir="$proj_dir/$context"
+  proj_dir="$proj_dir/$BUTLER_PROJECT"
 
   confirm_existing_project_dir "$proj_dir" || exit 0
 
