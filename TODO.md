@@ -1,14 +1,8 @@
 # Butler TODO
 
-- REWRITE: Sail literally everything is a docker-compose command. Because I want
-to be able to call without the site name from the project directory this should be the default
-therefore `butler up jamgolf` no longer is possible we should instead by default
-assume we are in the project directory otherwise this can be overriden by --site
-THEN we can assume all other arguments are being sent to docker compose
 - Add command to auto link all sites
 - add ability to use in project docker compose as well - fall back to docker-composer commands like the laravel one?
 - Look at laravels one as it might help tidy up the code
-- Add --site to docker-compose exec passthrough
 - Remove extra scripts checks from docker-compose passthrough which is only relavent to "up"
 - Add custom commands to Sites/ e.g. "butler artisan" which can be aliased to butler run php /app/artisan
 - Add laravel, currently have a laravel script to run the build url
