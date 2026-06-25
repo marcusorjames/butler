@@ -56,3 +56,43 @@ setup_extra() {
   [ "$status" -eq 0 ]
   echo "$output" | grep -qi "skip"
 }
+
+@test "main clones into context subdir when -c given" {
+  local site_dir repo_dir
+  site_dir="$SITES_DIR/mysite"
+  mkdir -p "$site_dir"
+
+  repo_dir="$(mktemp -d)"
+  git init --bare "$repo_dir" >/dev/null 2>&1
+
+  run main -c personal mysite "$repo_dir"
+  [ "$status" -eq 0 ]
+  [ -L "$site_dir/app" ]
+  [ -d "$PROJECTS_DIR/personal/mysite/.git" ]
+}
+
+@test "main exits 1 when context is non-alphabetic" {
+  local site_dir repo_dir
+  site_dir="$SITES_DIR/mysite"
+  mkdir -p "$site_dir"
+
+  repo_dir="$(mktemp -d)"
+  git init --bare "$repo_dir" >/dev/null 2>&1
+
+  run main -c "bad-context" mysite "$repo_dir"
+  [ "$status" -eq 1 ]
+  echo "$output" | grep -qi "alphabetic"
+}
+
+@test "main clones to root PROJECTS_DIR when no context given" {
+  local site_dir repo_dir
+  site_dir="$SITES_DIR/mysite"
+  mkdir -p "$site_dir"
+
+  repo_dir="$(mktemp -d)"
+  git init --bare "$repo_dir" >/dev/null 2>&1
+
+  run main mysite "$repo_dir"
+  [ "$status" -eq 0 ]
+  [ -d "$PROJECTS_DIR/mysite/.git" ]
+}
