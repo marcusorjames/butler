@@ -6,7 +6,7 @@ RUN ln -s /run/secrets/user_ssh /home/user/.ssh
 RUN sed -i -e 's/deb.debian.org/archive.debian.org/g' \
            -e 's|security.debian.org|archive.debian.org/|g' \
            -e '/stretch-updates/d' /etc/apt/sources.list
-RUN apt-get update -y && apt-get install -y libpng-dev libicu-dev libxml2-dev
+RUN apt-get update -y && apt-get install -y --allow-unauthenticated libpng-dev libicu-dev libxml2-dev
 
 RUN docker-php-ext-install gd intl json mbstring \
     pdo_mysql opcache xml zip
