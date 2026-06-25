@@ -1,0 +1,21 @@
+#!/bin/bash
+# templates subcommand — list available site templates
+
+print_usage() {
+  echo "List available site templates"
+  echo " "
+  echo "SYNOPSIS:"
+  echo " "
+  echo "butler templates"
+}
+
+main() {
+  [ "$1" = "-h" ] || [ "$1" = "--help" ] && print_usage && exit 0
+
+  for t in "$ROOT_DIR/templates"/*/; do
+    [ -d "$t" ] || continue
+    echo -e "  ${Green}$(basename "$t")${Color_Off}"
+  done
+}
+
+main "$@"
