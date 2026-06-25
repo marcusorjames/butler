@@ -46,7 +46,7 @@ link_single() {
 
   if ln -s "$project_path" "$app_path"; then
     if $fixed; then
-      statusBadge "$site" "FIXED" "$CWarn"
+      statusBadge "$site" "FIXED" "$CSuccess"
     else
       statusBadge "$site" "OK"
     fi
@@ -83,7 +83,7 @@ link_multi() {
       if $fix; then
         rm "$proj_link"
         ln -s "$proj_path" "$proj_link"
-        statusBadge "$p" "FIXED" "$CWarn"
+        statusBadge "$p" "FIXED" "$CSuccess"
       else
         local target
         target=$(readlink "$proj_link")
