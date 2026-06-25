@@ -13,6 +13,7 @@ print_usage() {
   echo -e "${Yellow}Site Management:"
   echo -e ""
   echo -e "${Green}add     ${Color_Off}Add a new site"
+  echo -e "${Green}list    ${Color_Off}List all sites"
   echo -e "${Green}cd      ${Color_Off}Change directory to site"
   echo -e "${Green}convert ${Color_Off}Convert single-project site to multi-project"
   echo -e "${Green}status  ${Color_Off}Show status of site(s)"
@@ -26,6 +27,7 @@ shift
 
 case $function in
 'add') . "$BIN_DIR/site-add" && main "$@" ;;
+'list') . "$BIN_DIR/site-list" && main "$@" ;;
 'cd') "$BIN_DIR/site-cd" "$@" ;;
 'convert') . "$BIN_DIR/site-convert" && main "$@" ;;
 'status') . "$BIN_DIR/site-status" && main "$@" ;;

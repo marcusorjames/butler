@@ -1,0 +1,29 @@
+#!/bin/bash
+# site list subcommand — list all sites
+
+PACKAGE="butler site list"
+
+print_usage() {
+  echo "List all sites"
+  echo " "
+  echo "SYNOPSIS:"
+  echo " "
+  echo "$PACKAGE"
+}
+
+main() {
+  [ "$1" = "-h" ] || [ "$1" = "--help" ] && print_usage && exit 0
+
+  local found=false
+  local site_dir
+
+  for site_dir in "$SITES_DIR"/*/; do
+    [ -d "$site_dir" ] || continue
+    echo -e "  ${Green}$(basename "$site_dir")${Color_Off}"
+    found=true
+  done
+
+  if ! $found; then
+    echo "No sites found in $SITES_DIR"
+  fi
+}

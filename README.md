@@ -52,6 +52,7 @@ If `SITE` is omitted from site commands, butler infers the site from your curren
 | --- | --- |
 | `butler install` | First-time setup wizard |
 | `butler site add` | Add a new site |
+| `butler site list` | List all sites |
 | `butler site add --multi` | Add a new multi-project site |
 | `butler site convert [SITE]` | Convert single-project site to multi-project |
 | `butler site cd` | Change directory to a site |
