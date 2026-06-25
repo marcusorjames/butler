@@ -30,6 +30,7 @@ print_usage() {
   echo -e ""
   echo -e "${Green}site add             ${Color_Off}Add a new site"
   echo -e "${Green}site list            ${Color_Off}List all sites"
+  echo -e "${Green}site clone           ${Color_Off}Clone a repo and link it to an existing site"
   echo -e "${Green}site cd              ${Color_Off}Change directory to site"
   echo -e "${Green}site convert         ${Color_Off}Convert single-project site to multi-project"
   echo -e "${Green}site status          ${Color_Off}Show status of site(s)"

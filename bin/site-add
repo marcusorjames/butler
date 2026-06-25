@@ -171,18 +171,8 @@ main() {
     [ -n "$context" ] && project_dir="$project_dir/$context"
     project_dir="$project_dir/$name"
 
-    project_dir_exists=false
-    [ -d "$project_dir" ] && project_dir_exists=true
-    if $project_dir_exists; then
-      if [ -d "$project_dir/.git" ]; then
-        existing_repo_url=$(git -C "$project_dir" config --get remote.origin.url)
-        read -r -p "$(echo -e "Project dir $Green$project_dir$Color_Off already exists with repo $Green$existing_repo_url$Color_Off continue? [Yn] ")" -n 1
-        echo
-      else
-        read -r -p "$(echo -e "Project dir $Green$project_dir$Color_Off already exists continue? [Yn] ")" -n 1
-        echo
-      fi
-      [[ ! $REPLY =~ ^[Yy]$ ]] && exit 0
+    if [ -d "$project_dir" ]; then
+      confirm_existing_project_dir "$project_dir" || exit 0
       statusLine "Creating Project directory" "skipped"
       statusLine "Cloning into $project_dir" "skipped"
       statusLine "Linking Project to Site" "done"

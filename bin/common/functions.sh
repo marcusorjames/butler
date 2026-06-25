@@ -88,6 +88,24 @@ assert_app_linked() {
   fi
 }
 
+# Prompt when a project directory already exists before cloning into it.
+# Returns 0 to proceed, 1 to abort. Returns 0 immediately if dir does not exist.
+confirm_existing_project_dir() {
+  local proj_dir="$1"
+  [ -d "$proj_dir" ] || return 0
+
+  if [ -d "$proj_dir/.git" ]; then
+    local existing_url
+    existing_url="$(git -C "$proj_dir" config --get remote.origin.url)"
+    read -r -p "$(echo -e "Project dir ${Green}$proj_dir${Color_Off} already exists (repo: ${Green}$existing_url${Color_Off}) — use existing? [Yn] ")" -n 1
+  else
+    read -r -p "$(echo -e "Project dir ${Green}$proj_dir${Color_Off} already exists — use existing? [Yn] ")" -n 1
+  fi
+  echo
+  [[ ! $REPLY =~ ^[Yy]$ ]] && return 1
+  return 0
+}
+
 die_with_error() {
   echo -e "${CError}Error:${Color_Off} $*" >&2
   exit 1
