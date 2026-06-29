@@ -73,7 +73,7 @@ export HOST_GID
 
 # Non-site-aware commands skip site resolution; everything else resolves
 case $function in
-site | ftp | sftp | mysql | dns | templates) ;;
+site | ftp | sftp | mysql | dns | templates | _complete) ;;
 *) resolve_site "$1" && shift ;;
 esac
 
@@ -106,6 +106,7 @@ case $function in
 'ftp') . "$BIN_DIR/ftp" "$@" ;;
 'sftp') . "$BIN_DIR/sftp" "$@" ;;
 'mysql') . "$BIN_DIR/mysql" "$@" ;;
+'_complete') . "$BIN_DIR/_complete" "$@" ;;
 
 *)
   print_usage
