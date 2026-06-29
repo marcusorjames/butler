@@ -21,16 +21,20 @@ _butler_autocomplete() {
   2)
     case ${cur} in
     up | down | restart)
-      mapfile -t COMPREPLY < <(compgen -W "$(ls "$BUTLER_SITES_DIR"/)")
+      # shellcheck disable=SC2207
+      COMPREPLY=($(compgen -W "$(ls "$BUTLER_SITES_DIR"/)"))
       ;;
     php | exec)
-      mapfile -t COMPREPLY < <(compgen -f -- "${COMP_WORDS[COMP_CWORD]}")
+      # shellcheck disable=SC2207
+      COMPREPLY=($(compgen -f -- "${COMP_WORDS[COMP_CWORD]}"))
       ;;
     sftp)
-      mapfile -t COMPREPLY < <(compgen -W "-k --key -u --upload -p --port -P --password -h --help" -- "${COMP_WORDS[COMP_CWORD]}")
+      # shellcheck disable=SC2207
+      COMPREPLY=($(compgen -W "-k --key -u --upload -p --port -P --password -h --help" -- "${COMP_WORDS[COMP_CWORD]}"))
       ;;
     ftp)
-      mapfile -t COMPREPLY < <(compgen -W "-u --upload -p --port -P --password -h --help" -- "${COMP_WORDS[COMP_CWORD]}")
+      # shellcheck disable=SC2207
+      COMPREPLY=($(compgen -W "-u --upload -p --port -P --password -h --help" -- "${COMP_WORDS[COMP_CWORD]}"))
       ;;
     esac
     ;;
@@ -39,14 +43,16 @@ _butler_autocomplete() {
     site)
       case ${cur} in
       cd)
-        mapfile -t COMPREPLY < <(compgen -W "$(ls "$BUTLER_SITES_DIR"/)")
+        # shellcheck disable=SC2207
+        COMPREPLY=($(compgen -W "$(ls "$BUTLER_SITES_DIR"/)"))
         ;;
       esac
       ;;
     sftp)
       case ${COMP_WORDS[COMP_CWORD - 1]} in
       -k | --key | -u | --upload)
-        mapfile -t COMPREPLY < <(compgen -f -- "${COMP_WORDS[COMP_CWORD]}")
+        # shellcheck disable=SC2207
+        COMPREPLY=($(compgen -f -- "${COMP_WORDS[COMP_CWORD]}"))
         ;;
       esac
       ;;
