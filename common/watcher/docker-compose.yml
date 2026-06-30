@@ -1,0 +1,16 @@
+services:
+  butler-watcher:
+    build: .
+    container_name: butler-watcher
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${BUTLER_SITES_DIR}:${BUTLER_SITES_DIR}:ro
+    environment:
+      VIRTUAL_HOST: butler-watcher
+      BUTLER_SITES_DIR: ${BUTLER_SITES_DIR}
+      BUTLER_TLD: ${BUTLER_TLD:-test}
+
+networks:
+  default:
+    external: true
+    name: butler
