@@ -19,7 +19,7 @@ services:
 networks:
   default:
     external: true
-    name: nginx-proxy
+    name: butler
 secrets:
   user_ssh:
     file: ~/.ssh

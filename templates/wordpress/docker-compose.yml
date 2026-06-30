@@ -12,15 +12,7 @@ services:
       XDEBUG_CONFIG: start_with_request=yes discover_client_host=1 log_level=0
     networks:
       - default
-      - mysql
-      - mailhog
 networks:
-  mysql:
-    external: true
-    name: mysql
   default:
     external: true
-    name: nginx-proxy
-  mailhog:
-    external: true
-    name: mailhog
+    name: butler

@@ -18,20 +18,12 @@ services:
       APACHE_COMMERCE_DOCUMENT_ROOT: /var/www/html/shared/lib/commerce/public
     networks:
       - default
-      - mysql
-      - mailhog
     secrets:
       - user_ssh
 networks:
-  mailhog:
-    external: true
-    name: mailhog
-  mysql:
-    external: true
-    name: mysql
   default:
     external: true
-    name: nginx-proxy
+    name: butler
 secrets:
   user_ssh:
     file: ~/.ssh

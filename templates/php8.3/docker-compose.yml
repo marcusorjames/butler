@@ -10,17 +10,13 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
     networks:
-      - mysql
-      - mailhog
+      - default
     secrets:
       - user_ssh
 networks:
-  mailhog:
+  default:
     external: true
-    name: mailhog
-  mysql:
-    external: true
-    name: mysql
+    name: butler
 secrets:
   user_ssh:
     file: ~/.ssh

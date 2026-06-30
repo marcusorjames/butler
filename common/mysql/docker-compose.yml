@@ -10,12 +10,11 @@ services:
     ports:
       - 3306:3306
     networks:
-      - mysql
-    command:  --sql_mode="NO_ENGINE_SUBSTITUTION"
+      - default
+    command: --sql_mode="NO_ENGINE_SUBSTITUTION"
 volumes:
-    mysqldata: {}
+  mysqldata: {}
 networks:
-  mysql:
+  default:
     external: true
-    name: mysql
-
+    name: butler
