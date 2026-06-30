@@ -22,6 +22,9 @@ shift
 # Ensure we are not in a docker directory as this breaks --project-directory
 cd "$BIN_DIR" || exit
 
+# Ensure butler network exists
+docker network create butler 2>/dev/null || true
+
 # Ensure nginx-proxy is up
 docker ps | grep -q nginx-proxy || docker compose \
   --project-directory "$ROOT_DIR/common/nginx-proxy" up -d

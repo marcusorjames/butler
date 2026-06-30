@@ -11,4 +11,4 @@ services:
 networks:
   default:
     external: true
-    name: nginx-proxy
+    name: butler
