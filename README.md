@@ -111,6 +111,14 @@ Without DNS configured, add entries to `/etc/hosts` manually:
 127.0.0.1 mysite.test
 ```
 
+## Domain Watcher
+
+Butler includes a watcher service that boots a site automatically when you browse to its `.test` domain — no need to `butler up` first.
+
+When nginx-proxy receives a request for a domain with no running container, it falls through to the watcher. The watcher reads the `Host` header, maps it to a site directory in `BUTLER_SITES_DIR`, runs `docker compose up -d` in the background, and returns a page that auto-refreshes in five seconds once the stack is ready.
+
+The watcher starts automatically alongside nginx-proxy the first time you run any docker-compose command.
+
 ## Two-Directory Model
 
 Butler maintains two separate directory trees:
