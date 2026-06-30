@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Docker compose passthrough
 
 PACKAGE="butler docker-compose"
@@ -36,6 +36,19 @@ docker ps | grep -q nginx-proxy || docker compose \
 BUTLER_PROJECTS=""
 [ -f "$CURRENT_SITE_DIR/.env" ] && . "$CURRENT_SITE_DIR/.env"
 assert_app_linked "$CURRENT_SITE_DIR" "$CURRENT_SITE" "$BUTLER_PROJECTS"
+
+# Prompt to start the stack if not running, except for up/down
+case "$cmd" in
+up | down) ;;
+*)
+  if ! docker compose --project-directory "$CURRENT_SITE_DIR" ps --status running -q 2>/dev/null | grep -q .; then
+    read -r -p "$(echo -e "Site ${CWarn}${CURRENT_SITE}${Color_Off} is not running. Start it? [Yn] ")" -n 1
+    echo
+    [[ $REPLY =~ ^[Nn]$ ]] && exit 0
+    docker compose --project-directory "$CURRENT_SITE_DIR" up -d
+  fi
+  ;;
+esac
 
 # Run any site scripts
 if [ -f "$CURRENT_SITE_DIR/scripts/$cmd" ]; then

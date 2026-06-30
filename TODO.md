@@ -8,4 +8,3 @@
 - Move from mailhog to mailtrap
 - I wonder if there could be some kinda watcher on domains so if you
   browse to example.local and a site exists for that domain it boots it
-- When running exec on a container ensure container is up first
