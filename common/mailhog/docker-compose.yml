@@ -6,9 +6,8 @@ services:
       - 8025:8025
       - 1025:1025
     networks:
-      - mailhog
+      - default
 networks:
-  mailhog:
+  default:
     external: true
-    name: mailhog
-
+    name: butler
