@@ -30,7 +30,7 @@ Toolchain: `just fmt` (shfmt), `just lint` (shellcheck), `just test` (bats). For
 
 Butler maintains two separate directory trees:
 
-- **Sites** (`BUTLER_SITES_DIR`) — Docker Compose config directories, one per site. Each site contains `docker-compose.yml`, optional `scripts/`, and an `app` symlink pointing to the project directory.
+- **Sites** (`BUTLER_SITES_DIR`) — Docker Compose config directories, one per site. Each site contains `docker-compose.yml`, optional `hooks/`, optional `scripts/`, and an `app` symlink pointing to the project directory.
 - **Projects** (`BUTLER_PROJECTS_DIR`) — Git repository clones (the actual code). Optionally nested under context subdirs (e.g. `Projects/personal/mysite`) when `BUTLER_REQUIRED_CONTEXT=true`.
 
 `butler site add` copies a template into Sites, clones the repo into Projects, and creates the `app` symlink. `butler site link` repairs or creates broken/missing `app` symlinks.
@@ -66,11 +66,15 @@ BUTLER_PROJECT_DIR=/custom/path     # override resolved project directory
 
 ### Docker Compose integration (`bin/docker-compose`)
 
-The passthrough uses the pre-resolved `$CURRENT_SITE_DIR` (set by `resolve_site` in `butler` before dispatch), ensures nginx-proxy is running, sources `<site-dir>/scripts/<cmd>` if it exists, then delegates to `docker compose --project-directory <site-dir>`.
+The passthrough uses the pre-resolved `$CURRENT_SITE_DIR` (set by `resolve_site` in `butler` before dispatch), ensures nginx-proxy is running, sources `<site-dir>/hooks/<cmd>` if it exists, then delegates to `docker compose --project-directory <site-dir>`.
+
+### Hooks (`<site-dir>/hooks/`)
+
+Lifecycle hooks sourced before the matching docker-compose command runs. A file named `hooks/up` is sourced before `docker compose up`, etc. Intended for starting shared services or other pre-flight setup.
 
 ### Scripts (`scripts/` and `<site-dir>/scripts/`)
 
-`butler run <name>` looks for `<site-dir>/scripts/<name>` first, then falls back to the global `scripts/` directory. Global scripts currently include `composer` and `gulp`. Site scripts are also auto-sourced by the docker-compose passthrough before the compose command runs.
+`butler run <name>` looks for `<site-dir>/scripts/<name>` first, then falls back to the global `scripts/` directory. Global scripts currently include `composer` and `gulp`. These are user-facing commands, distinct from hooks.
 
 ### Templates (`templates/`)
 

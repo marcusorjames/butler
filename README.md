@@ -123,7 +123,7 @@ The watcher starts automatically alongside nginx-proxy the first time you run an
 
 Butler maintains two separate directory trees:
 
-- **Sites** (`BUTLER_SITES_DIR`) — Docker Compose configs, one per site. Each contains `docker-compose.yml`, optional `scripts/`, and an `app` symlink (single-project) or `app/` directory of named symlinks (multi-project) pointing to the project(s).
+- **Sites** (`BUTLER_SITES_DIR`) — Docker Compose configs, one per site. Each contains `docker-compose.yml`, optional `hooks/` (lifecycle hooks sourced before the matching compose command), optional `scripts/` (user-facing commands exposed via `butler run`), and an `app` symlink (single-project) or `app/` directory of named symlinks (multi-project) pointing to the project(s).
 - **Projects** (`BUTLER_PROJECTS_DIR`) — Git repository clones. Optionally nested under context subdirs (e.g. `Projects/work/mysite`) when `BUTLER_REQUIRED_CONTEXT=true`.
 
 Butler resolves the current site by scanning `app` symlinks in `BUTLER_SITES_DIR` — so running `butler shell` from anywhere inside a project directory just works.
