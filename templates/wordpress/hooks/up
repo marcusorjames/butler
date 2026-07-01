@@ -3,9 +3,9 @@
 DIR="$(dirname "$(readlink -f "$0")")"
 
 # Ensure mysql is up
-[ ! "$(docker ps | grep mysql_mysql_1)" ] && docker-compose \
+docker ps | grep -q mysql || docker compose \
     --project-directory "$DIR/common/mysql" up -d
 
-# Ensure mailhog is up
-[ ! "$(docker ps | grep mailhog_mailhog_1)" ] && docker-compose \
-    --project-directory "$DIR/common/mailhog" up -d
+# Ensure mailpit is up
+docker ps | grep -q mailpit || docker compose \
+    --project-directory "$DIR/common/mailpit" up -d

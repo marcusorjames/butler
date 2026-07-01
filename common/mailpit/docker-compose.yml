@@ -1,12 +1,11 @@
 services:
-  mailhog:
-    container_name: mailhog
-    image: mailhog/mailhog
+  mailpit:
+    container_name: mailpit
+    image: axllent/mailpit
     ports:
       - 8025:8025
       - 1025:1025
-    networks:
-      - default
+
 networks:
   default:
     external: true
