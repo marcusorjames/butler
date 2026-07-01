@@ -54,10 +54,10 @@ up | down) ;;
   ;;
 esac
 
-# Run any site scripts
-if [ -f "$CURRENT_SITE_DIR/scripts/$cmd" ]; then
+# Run any site hooks
+if [ -f "$CURRENT_SITE_DIR/hooks/$cmd" ]; then
   # shellcheck source=/dev/null
-  . "$CURRENT_SITE_DIR/scripts/$cmd"
+  . "$CURRENT_SITE_DIR/hooks/$cmd"
 fi
 
 docker compose --project-directory "$CURRENT_SITE_DIR" "$cmd" "$@"
