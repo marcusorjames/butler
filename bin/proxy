@@ -16,6 +16,6 @@ print_usage() {
 
 [ "$1" = "-h" ] || [ "$1" = "--help" ] && print_usage && exit 0
 
-docker run -it --network nginx-proxy \
+docker run -it --network butler \
   -e NGROK_AUTHTOKEN="${NGROK_AUTHTOKEN}" \
-  ngrok/ngrok:alpine http "${BUTLER_PROJECT}.${BUTLER_TLD:-test}:80"
+  ngrok/ngrok:alpine http --host-header=rewrite "${BUTLER_PROJECT}.${BUTLER_TLD:-test}:80"
