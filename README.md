@@ -1,6 +1,6 @@
 # Butler
 
-**Your friendly dev stack helper** — a bash CLI that wraps Docker Compose to manage local development stacks. Runs nginx-proxy as a shared reverse-proxy so multiple sites can be served under `.test` domains simultaneously.
+**Your friendly PHP dev stack helper** — a bash CLI that wraps Docker Compose to manage local PHP development stacks. Runs nginx-proxy as a shared reverse-proxy so multiple sites can be served under `.test` domains simultaneously. Templates, presets, and built-in commands are PHP-oriented; other stacks can be managed but are not first-class.
 
 ## Prerequisites
 
