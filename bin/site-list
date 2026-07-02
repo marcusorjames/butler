@@ -3,6 +3,8 @@
 
 PACKAGE="butler site list"
 
+. "$COMMON_DIR/functions.sh"
+
 print_usage() {
   echo "List all sites"
   echo " "
@@ -11,19 +13,11 @@ print_usage() {
   echo "$PACKAGE"
 }
 
+_list_one() {
+  echo -e "  ${Green}$1${Color_Off}"
+}
+
 main() {
   [ "$1" = "-h" ] || [ "$1" = "--help" ] && print_usage && exit 0
-
-  local found=false
-  local site_dir
-
-  for site_dir in "$SITES_DIR"/*/; do
-    [ -d "$site_dir" ] || continue
-    echo -e "  ${Green}$(basename "$site_dir")${Color_Off}"
-    found=true
-  done
-
-  if ! $found; then
-    echo "No sites found in $SITES_DIR"
-  fi
+  for_each_site _list_one
 }

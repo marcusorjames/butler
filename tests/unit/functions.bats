@@ -55,6 +55,21 @@ load "../helpers/common"
   [ "$result" = "$base/templates/mytemplate" ]
 }
 
+@test "for_each_site calls callback for each site directory" {
+  mkdir -p "$SITES_DIR/alpha" "$SITES_DIR/beta"
+  _collect_site() { echo "site:$1"; }
+  result="$(for_each_site _collect_site)"
+  [[ "$result" == *"alpha"* ]]
+  [[ "$result" == *"beta"* ]]
+}
+
+@test "for_each_site prints message when no sites exist" {
+  _noop() { :; }
+  run for_each_site _noop
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"No sites found"* ]]
+}
+
 @test "get_template_dir exits nonzero when template is absent" {
   local base
   base="$(mktemp -d)"
