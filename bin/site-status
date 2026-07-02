@@ -23,8 +23,11 @@ status_single() {
   local status
   status="$(app_link_status "$app_path")"
 
+  local extra=""
+  $verbose && extra="[$site_dir]"
+
   case "$status" in
-  ok) statusBadge "$site" "OK" "$CSuccess" "${verbose:+[$site_dir]}" ;;
+  ok) statusBadge "$site" "OK" "$CSuccess" "$extra" ;;
   broken)
     local target
     target="$(readlink "$app_path")"
@@ -42,7 +45,9 @@ status_multi() {
   local site="$1" site_dir="$2" verbose="$3"
   local app_path="$site_dir/app"
 
-  echo -e "${site}${verbose:+ [$site_dir]}"
+  local site_label="$site"
+  $verbose && site_label="$site [$site_dir]"
+  echo -e "$site_label"
 
   local p status
   for p in ${BUTLER_PROJECTS//,/ }; do
