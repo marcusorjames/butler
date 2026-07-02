@@ -83,6 +83,25 @@ setup_extra() {
   [[ "$output" == *"OK"* ]]
 }
 
+@test "main with no args shows status for all sites" {
+  local proj_dir site_dir
+  proj_dir="$(mktemp -d)"
+  site_dir="$SITES_DIR/mysite"
+  mkdir -p "$site_dir"
+  ln -s "$proj_dir" "$site_dir/app"
+
+  run main
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"mysite"* ]]
+  [[ "$output" == *"OK"* ]]
+}
+
+@test "main with no args prints message when no sites exist" {
+  run main
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"No sites found"* ]]
+}
+
 @test "status_multi reports BROKEN for dead project symlink" {
   local proj_dir site_dir
   proj_dir="$(mktemp -d)"

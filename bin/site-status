@@ -61,6 +61,21 @@ status_multi() {
   done
 }
 
+_status_one() {
+  local site="$1" site_dir="$2"
+  BUTLER_PROJECTS=""
+  [ -f "$site_dir/.env" ] && {
+    set -a
+    . "$site_dir/.env"
+    set +a
+  }
+  if [ -n "$BUTLER_PROJECTS" ]; then
+    status_multi "$site" "$site_dir" "$verbose"
+  else
+    status_single "$site" "$site_dir" "$verbose"
+  fi
+}
+
 main() {
   help=false
   verbose=false
@@ -85,7 +100,10 @@ main() {
 
   site="$1"
 
-  [ -z "$site" ] && echo -e "${CWarn}All sites is not yet implemented${Color_Off}" && exit 0
+  if [ -z "$site" ]; then
+    for_each_site _status_one
+    exit 0
+  fi
 
   if ! site_dir="$(get_site_dir "$site")"; then
     die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
