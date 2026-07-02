@@ -23,8 +23,8 @@ setup_extra() {
   [ "$status" -eq 1 ]
 }
 
-@test "main exits 1 for non-alphabetic context" {
-  run main -t php8.3 -n mysite -c 1invalid -r /dev/null
+@test "main exits 1 for invalid context" {
+  run main -t php8.3 -n mysite -c "inv@lid!" -r /dev/null
   [ "$status" -eq 1 ]
 }
 

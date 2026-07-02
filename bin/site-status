@@ -23,8 +23,11 @@ status_single() {
   local status
   status="$(app_link_status "$app_path")"
 
+  local extra=""
+  $verbose && extra="[$site_dir]"
+
   case "$status" in
-  ok) statusBadge "$site" "OK" "$CSuccess" "${verbose:+[$site_dir]}" ;;
+  ok) statusBadge "$site" "OK" "$CSuccess" "$extra" ;;
   broken)
     local target
     target="$(readlink "$app_path")"
@@ -42,7 +45,9 @@ status_multi() {
   local site="$1" site_dir="$2" verbose="$3"
   local app_path="$site_dir/app"
 
-  echo -e "${site}${verbose:+ [$site_dir]}"
+  local site_label="$site"
+  $verbose && site_label="$site [$site_dir]"
+  echo -e "$site_label"
 
   local p status
   for p in ${BUTLER_PROJECTS//,/ }; do
@@ -59,6 +64,21 @@ status_multi() {
     missing) statusBadge "  $p" "MISSING" "$CError" ;;
     esac
   done
+}
+
+_status_one() {
+  local site="$1" site_dir="$2"
+  BUTLER_PROJECTS=""
+  [ -f "$site_dir/.env" ] && {
+    set -a
+    . "$site_dir/.env"
+    set +a
+  }
+  if [ -n "$BUTLER_PROJECTS" ]; then
+    status_multi "$site" "$site_dir" "$verbose"
+  else
+    status_single "$site" "$site_dir" "$verbose"
+  fi
 }
 
 main() {
@@ -85,23 +105,14 @@ main() {
 
   site="$1"
 
-  [ -z "$site" ] && echo -e "${CWarn}All sites is not yet implemented${Color_Off}" && exit 0
+  if [ -z "$site" ]; then
+    for_each_site _status_one
+    exit 0
+  fi
 
   if ! site_dir="$(get_site_dir "$site")"; then
     die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
   fi
 
-  # Load site env to pick up BUTLER_PROJECTS if set
-  BUTLER_PROJECTS=""
-  if [ -f "$site_dir/.env" ]; then
-    set -a
-    . "$site_dir/.env"
-    set +a
-  fi
-
-  if [ -n "$BUTLER_PROJECTS" ]; then
-    status_multi "$site" "$site_dir" "$verbose"
-  else
-    status_single "$site" "$site_dir" "$verbose"
-  fi
+  _status_one "$site" "$site_dir"
 }

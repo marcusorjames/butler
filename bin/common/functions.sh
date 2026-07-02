@@ -111,6 +111,20 @@ die_with_error() {
   exit 1
 }
 
+for_each_site() {
+  local callback="$1"
+  local found=false
+  local site site_dir
+  for site_dir in "$SITES_DIR"/*/; do
+    [ -d "$site_dir" ] || continue
+    site_dir="${site_dir%/}"
+    site="$(basename "$site_dir")"
+    found=true
+    "$callback" "$site" "$site_dir"
+  done
+  $found || echo "No sites found in $SITES_DIR"
+}
+
 dns_is_configured() {
   local tld="${BUTLER_TLD:-test}"
   local butler_conf
