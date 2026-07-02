@@ -50,7 +50,6 @@ If `SITE` is omitted from site commands, butler infers the site from your curren
 
 | Command | Description |
 | --- | --- |
-| `butler install` | First-time setup wizard |
 | `butler site add` | Add a new site |
 | `butler site list` | List all sites |
 | `butler site clone [-c CONTEXT] [SITE] <REPO>` | Clone a repo and link it to an existing site |

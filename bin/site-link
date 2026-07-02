@@ -125,25 +125,15 @@ link_site() {
   fi
 }
 
+_link_one() {
+  if ! link_site "$1" "$2" "$fix"; then
+    $verbose && statusBadge "$1" "SKIP" "$CWarn" "no project found"
+  fi
+}
+
 link_all() {
   local fix="$1" verbose="$2"
-  local site_dir site found=false
-
-  for site_dir in "$SITES_DIR"/*/; do
-    [ -d "$site_dir" ] || continue
-    site_dir="${site_dir%/}"
-    site="$(basename "$site_dir")"
-    found=true
-
-    if ! link_site "$site" "$site_dir" "$fix"; then
-      $verbose && statusBadge "$site" "SKIP" "$CWarn" "no project found"
-      continue
-    fi
-  done
-
-  if ! $found; then
-    echo "No sites found in $SITES_DIR"
-  fi
+  for_each_site _link_one
 }
 
 main() {
