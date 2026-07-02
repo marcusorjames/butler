@@ -109,17 +109,5 @@ main() {
     die_with_error "Site ${CWarn}$site${Color_Off} doesn't exist"
   fi
 
-  # Load site env to pick up BUTLER_PROJECTS if set
-  BUTLER_PROJECTS=""
-  if [ -f "$site_dir/.env" ]; then
-    set -a
-    . "$site_dir/.env"
-    set +a
-  fi
-
-  if [ -n "$BUTLER_PROJECTS" ]; then
-    status_multi "$site" "$site_dir" "$verbose"
-  else
-    status_single "$site" "$site_dir" "$verbose"
-  fi
+  _status_one "$site" "$site_dir"
 }
