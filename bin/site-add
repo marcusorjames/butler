@@ -125,7 +125,7 @@ main() {
 
   $BUTLER_REQUIRED_CONTEXT && [ -z "$context" ] && read -rp "Specify a context: " context
 
-  [[ ! "$context" =~ ^[[:alpha:]]*$ ]] && echo -e "${CError}Context must be alphabetic" && exit 1
+  [[ ! "$context" =~ ^[[:alnum:]_-]*$ ]] && echo -e "${CError}Context must be alphanumeric (hyphens and underscores allowed)" && exit 1
 
   if $multi; then
     # Multi-project: collect all input first, then execute
