@@ -74,6 +74,7 @@ If `SITE` is omitted from site commands, butler infers the site from your curren
 | `butler php [SITE] <args>` | Run php on the container |
 | `butler composer [SITE] [PROJECT] <args>` | Run composer on the container |
 | `butler run [SITE] <script>` | Run a custom script |
+| `butler scripts [SITE]` | List available scripts for the current site |
 | `butler proxy [SITE]` | Proxy site through ngrok |
 
 ### Other Commands

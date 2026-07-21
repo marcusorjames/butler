@@ -1,0 +1,52 @@
+#!/bin/bash
+# scripts subcommand — list available scripts for the current site
+
+PACKAGE="butler scripts"
+
+. "$COMMON_DIR/functions.sh"
+
+print_usage() {
+  echo "List available scripts for the current site"
+  echo " "
+  echo "SYNOPSIS:"
+  echo " "
+  echo "$PACKAGE"
+  echo " "
+  echo "  -h, --help    print this help"
+}
+
+main() {
+  [ "$1" = "-h" ] || [ "$1" = "--help" ] && print_usage && exit 0
+
+  local site_scripts="$CURRENT_SITE_DIR/scripts"
+  local global_scripts="$ROOT_DIR/scripts"
+  local found=false
+  local name
+
+  if [ -d "$site_scripts" ]; then
+    for script in "$site_scripts"/*; do
+      [ -f "$script" ] || continue
+      name="$(basename "$script")"
+      if [ -f "$BIN_DIR/$name" ]; then
+        echo -e "  ${Yellow}$name (shadowed by built-in — use butler run $name)${Color_Off}"
+      else
+        echo -e "  ${Green}$name${Color_Off}"
+      fi
+      found=true
+    done
+  fi
+
+  for script in "$global_scripts"/*; do
+    [ -f "$script" ] || continue
+    name="$(basename "$script")"
+    [ -f "$site_scripts/$name" ] && continue
+    if [ -f "$BIN_DIR/$name" ]; then
+      echo -e "  ${Yellow}$name (global, shadowed by built-in — use butler run $name)${Color_Off}"
+    else
+      echo -e "  ${Green}$name${Color_Off} ${Yellow}(global)${Color_Off}"
+    fi
+    found=true
+  done
+
+  $found || echo "No scripts available for this site"
+}

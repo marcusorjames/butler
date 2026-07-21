@@ -47,6 +47,7 @@ print_usage() {
   echo -e "${Green}shell                ${Color_Off}Start a shell session in the application container"
   echo -e "${Green}composer             ${Color_Off}Run composer on the container"
   echo -e "${Green}run                  ${Color_Off}Run a custom script"
+  echo -e "${Green}scripts              ${Color_Off}List available scripts for the current site"
   echo -e "${Green}proxy                ${Color_Off}Proxy site through ngrok"
   echo -e "${Green}docker-compose       ${Color_Off}Docker compose passthrough"
   echo -e ""
@@ -97,6 +98,7 @@ case $function in
 'shell') . "$BIN_DIR/docker-compose" exec "${BUTLER_APP_CONTAINER}" bash "$@" ;;
 'composer') . "$BIN_DIR/composer" "$@" ;;
 'run') . "$BIN_DIR/run" "$@" ;;
+'scripts') . "$BIN_DIR/scripts" && main "$@" ;;
 'proxy') . "$BIN_DIR/proxy" "$@" ;;
 'docker-compose') . "$BIN_DIR/docker-compose" "$@" ;;
 
@@ -109,7 +111,11 @@ case $function in
 '_complete') . "$BIN_DIR/_complete" "$@" ;;
 
 *)
-  print_usage
-  exit 1
+  if [ -f "$CURRENT_SITE_DIR/scripts/$function" ] || [ -f "$ROOT_DIR/scripts/$function" ]; then
+    . "$BIN_DIR/run" "$function" "$@"
+  else
+    print_usage
+    exit 1
+  fi
   ;;
 esac
