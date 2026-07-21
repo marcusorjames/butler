@@ -29,10 +29,29 @@ setup_extra() {
   [[ "$output" == *"(global)"* ]]
 }
 
-@test "scripts hides global scripts that clash with built-in commands" {
+@test "scripts warns about global scripts shadowed by built-in commands" {
+  local fake_root
+  fake_root="$(mktemp -d)"
+  mkdir -p "$fake_root/scripts"
+  touch "$fake_root/scripts/composer"
+  ROOT_DIR="$fake_root"
+
   run main
   [ "$status" -eq 0 ]
-  ! echo "$output" | grep -q "composer"
+  [[ "$output" == *"composer"* ]]
+  [[ "$output" == *"shadowed by built-in"* ]]
+  [[ "$output" == *"butler run composer"* ]]
+}
+
+@test "scripts warns about site-local scripts shadowed by built-in commands" {
+  mkdir -p "$CURRENT_SITE_DIR/scripts"
+  touch "$CURRENT_SITE_DIR/scripts/composer"
+
+  run main
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"composer"* ]]
+  [[ "$output" == *"shadowed by built-in"* ]]
+  [[ "$output" == *"butler run composer"* ]]
 }
 
 @test "scripts does not duplicate a script present in both site and global" {

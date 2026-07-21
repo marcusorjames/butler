@@ -27,8 +27,11 @@ main() {
     for script in "$site_scripts"/*; do
       [ -f "$script" ] || continue
       name="$(basename "$script")"
-      [ -f "$BIN_DIR/$name" ] && continue
-      echo -e "  ${Green}$name${Color_Off}"
+      if [ -f "$BIN_DIR/$name" ]; then
+        echo -e "  ${Yellow}$name (shadowed by built-in — use butler run $name)${Color_Off}"
+      else
+        echo -e "  ${Green}$name${Color_Off}"
+      fi
       found=true
     done
   fi
@@ -37,8 +40,11 @@ main() {
     [ -f "$script" ] || continue
     name="$(basename "$script")"
     [ -f "$site_scripts/$name" ] && continue
-    [ -f "$BIN_DIR/$name" ] && continue
-    echo -e "  ${Green}$name${Color_Off} ${Yellow}(global)${Color_Off}"
+    if [ -f "$BIN_DIR/$name" ]; then
+      echo -e "  ${Yellow}$name (global, shadowed by built-in — use butler run $name)${Color_Off}"
+    else
+      echo -e "  ${Green}$name${Color_Off} ${Yellow}(global)${Color_Off}"
+    fi
     found=true
   done
 
