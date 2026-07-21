@@ -139,7 +139,14 @@ BUTLER_PROJECT_DIR=/custom/path      # override resolved project directory
 BUTLER_APP_CONTAINER=php             # container name for exec/shell/composer
 ```
 
-Use `.env` in the site directory for local overrides (passwords, domain overrides) that should not be committed.
+Use `.env` in the site directory for local overrides (passwords, domain overrides, extra compose files) that should not be committed.
+
+```bash
+# Sites/mysite/.env
+BUTLER_COMPOSE_FILES=docker-compose.xdebug.yml   # colon-separated extra compose files
+```
+
+`BUTLER_COMPOSE_FILES` accepts relative paths (resolved against the site directory) or absolute paths. Useful for layering Xdebug, local volume mounts, or other per-developer overrides on top of the committed `docker-compose.yml`.
 
 ### Multi-project sites
 

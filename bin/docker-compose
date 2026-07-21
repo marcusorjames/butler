@@ -63,4 +63,14 @@ fi
 TTY_FLAG=()
 [ "$cmd" = "exec" ] && [ ! -t 0 ] && TTY_FLAG=(-T)
 
-docker compose --project-directory "$CURRENT_SITE_DIR" "$cmd" "${TTY_FLAG[@]}" "$@"
+FILE_FLAGS=()
+if [ -n "$BUTLER_COMPOSE_FILES" ]; then
+  FILE_FLAGS+=(-f "$CURRENT_SITE_DIR/docker-compose.yml")
+  IFS=: read -ra _files <<<"$BUTLER_COMPOSE_FILES"
+  for _f in "${_files[@]}"; do
+    [[ "$_f" != /* ]] && _f="$CURRENT_SITE_DIR/$_f"
+    FILE_FLAGS+=(-f "$_f")
+  done
+fi
+
+docker compose --project-directory "$CURRENT_SITE_DIR" "${FILE_FLAGS[@]}" "$cmd" "${TTY_FLAG[@]}" "$@"
