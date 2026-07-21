@@ -1,7 +1,7 @@
 #!/bin/bash
 # Internal completion handler — called by bin/autocomplete
 
-BUTLER_COMMANDS="up down restart exec php exect shell composer run proxy docker-compose dns templates ftp sftp mysql site"
+BUTLER_COMMANDS="up down restart exec php exect shell composer run scripts proxy docker-compose dns templates ftp sftp mysql site"
 
 _list_sites() {
   [ -d "$SITES_DIR" ] || return
