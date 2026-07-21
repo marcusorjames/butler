@@ -3,7 +3,7 @@
 ## v1
 
 - **Script discoverability** — `butler scripts` lists scripts available for the current site; unknown commands auto-dispatch to site scripts, with built-in commands always taking precedence
-- **TTY detection** — append `-T` to `docker compose exec` when stdin is not a terminal, preventing TTY errors in non-interactive contexts (e.g. CI scripts)
+- ~~**TTY detection** — append `-T` to `docker compose exec` when stdin is not a terminal, preventing TTY errors in non-interactive contexts (e.g. CI scripts)~~
 - **Stacked compose files** — `BUTLER_FILES` env var (colon-separated) appends extra `-f` flags to every compose invocation, allowing per-project overrides without modifying the main `docker-compose.yml`
 
 ## Future
