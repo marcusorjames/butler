@@ -8,9 +8,6 @@ init() {
     echo "No .env file found" && exit 0
   fi
 
-  # TODO: Dry the directory env sanitisation up
-  # TODO: .env validation e.g. does BUTLER_SITES_DIR have a value
-
   # Strip trailing slash
   SITES_DIR=${BUTLER_SITES_DIR%/}
   # Replace ~
@@ -27,8 +24,6 @@ init() {
   # Ensure projects directory exists
   mkdir -p "$PROJECTS_DIR"
 
-  # TODO: Check that fzf is installed and if not issue a warning that experience is better with it
-  # TODO: add site cd
 }
 
 init_site() {
