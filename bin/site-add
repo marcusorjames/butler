@@ -1,8 +1,5 @@
 #!/bin/bash
-#
 # site add subcommand
-#
-# TODO: Add ability to add local site
 
 PACKAGE="butler site add"
 
@@ -14,16 +11,14 @@ PACKAGE="butler site add"
 print_usage() {
   echo "Add a new site"
   echo " "
-  echo "SYNOPSIS:"
+  echo "Usage:  $PACKAGE [OPTIONS]"
   echo " "
-  echo "$PACKAGE NAME [OPTION]"
-  echo " "
-  echo "  -h, --help          print this help"
-  echo "  -c, --context       project context e.g. personal"
-  echo "  -n, --name          name of the project (defaults to the repository name)"
-  echo "  -t, --template      site template such as 'wordpress'"
-  echo "  -r, --repository    git repository"
-  echo "  -m, --multi         create a multi-project site"
+  echo -e "  ${Green}-n, --name NAME        ${Color_Off}site name"
+  echo -e "  ${Green}-t, --template NAME    ${Color_Off}site template (e.g. wordpress, php8.3-apache)"
+  echo -e "  ${Green}-c, --context NAME     ${Color_Off}project context subdirectory (e.g. personal)"
+  echo -e "  ${Green}-r, --repository REPO  ${Color_Off}git repository URL"
+  echo -e "  ${Green}-m, --multi            ${Color_Off}create a multi-project site"
+  echo -e "  ${Green}-h, --help             ${Color_Off}display this help"
 }
 
 add_multi() {
@@ -188,9 +183,3 @@ main() {
   fi
 
 }
-
-# TODOS:
-# - Chown $USER:www-data
-# - Add a default template
-# - Add template replacing
-# - Add ability to add things to the docker compose file e.g. mysql etc

@@ -1,6 +1,8 @@
 #!/bin/bash
 # ftp
 
+PACKAGE="butler ftp"
+
 set -euo pipefail
 trap 'echo "Error: Script failed at line $LINENO."; exit 1' ERR
 
@@ -60,21 +62,16 @@ while [[ $# -gt 0 ]]; do
 done
 
 print_usage() {
-  echo ""
   echo "Run an ephemeral FTP server"
-  echo ""
-  echo "USAGE:"
-  echo "  $(basename "$0") [options]"
-  echo ""
-  echo "OPTIONS:"
-  echo "  -u, --upload PATH     Upload directory (default: \$HOME/ftp)"
-  echo "  -p, --port PORT       External port to expose (default: 20-21)"
-  echo "  -P, --password PASS   Password for FTP user"
-  echo "  -h, --help            Show this help message"
-  echo ""
-  echo "NOTES:"
-  echo "  - Press Ctrl+C to stop; container is removed automatically."
-  echo ""
+  echo " "
+  echo "Usage:  $PACKAGE [OPTIONS]"
+  echo " "
+  echo -e "  ${Green}-u, --upload PATH     ${Color_Off}upload directory (default: \$HOME/ftp)"
+  echo -e "  ${Green}-p, --port PORT       ${Color_Off}port to expose (default: 20-21)"
+  echo -e "  ${Green}-P, --password PASS   ${Color_Off}FTP user password"
+  echo -e "  ${Green}-h, --help            ${Color_Off}display this help"
+  echo " "
+  echo "Press Ctrl+C to stop; container is removed automatically."
 }
 
 $HELP && print_usage && exit 0

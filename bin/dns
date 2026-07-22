@@ -7,15 +7,15 @@ DNSMASQ_PORT=5300
 print_usage() {
   echo "Manage automatic DNS resolution for the butler TLD"
   echo " "
-  echo "SYNOPSIS:"
-  echo " "
-  echo "$PACKAGE COMMAND"
+  echo "Usage:  $PACKAGE COMMAND"
   echo " "
   echo -e "${Yellow}Commands:"
   echo -e ""
-  echo -e "${Green}install    ${Color_Off}Configure dnsmasq to resolve *.\${BUTLER_TLD:-test} locally"
-  echo -e "${Green}uninstall  ${Color_Off}Remove butler dnsmasq config and DNS routing"
-  echo -e "${Green}status     ${Color_Off}Show current DNS configuration state"
+  echo -e "  ${Green}install    ${Color_Off}configure dnsmasq to resolve *.\${BUTLER_TLD:-test} locally"
+  echo -e "  ${Green}uninstall  ${Color_Off}remove butler dnsmasq config and DNS routing"
+  echo -e "  ${Green}status     ${Color_Off}show current DNS configuration state"
+  echo -e ""
+  echo -e "  ${Green}-h, --help ${Color_Off}display this help"
 }
 
 # Detect platform: macos | linux-systemd | linux-nm | wsl-no-systemd | unknown
@@ -348,7 +348,7 @@ main() {
   install) cmd_install ;;
   uninstall) cmd_uninstall ;;
   status) cmd_status ;;
-  -h | --help) print_usage ;;
+  -h | --help) print_usage && exit 0 ;;
   *)
     echo -e "${CError}Unknown command:${Color_Off} $1"
     print_usage

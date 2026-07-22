@@ -1,12 +1,14 @@
 #!/bin/bash
 # templates subcommand — list available site templates
 
+PACKAGE="butler templates"
+
 print_usage() {
   echo "List available site templates"
   echo " "
-  echo "SYNOPSIS:"
+  echo "Usage:  $PACKAGE"
   echo " "
-  echo "butler templates"
+  echo -e "  ${Green}-h, --help   ${Color_Off}display this help"
 }
 
 main() {

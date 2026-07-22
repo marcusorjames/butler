@@ -1,6 +1,8 @@
 #!/bin/bash
 # sftp
 
+PACKAGE="butler sftp"
+
 set -euo pipefail
 trap 'echo "Error: Script failed at line $LINENO."; exit 1' ERR
 
@@ -65,23 +67,18 @@ while [[ $# -gt 0 ]]; do
 done
 
 print_usage() {
-  echo ""
   echo "Run an ephemeral SFTP server"
-  echo ""
-  echo "USAGE:"
-  echo "  $(basename "$0") [options]"
-  echo ""
-  echo "OPTIONS:"
-  echo "  -k, --key PATH        Path to SSH key file or directory (default: \$HOME/.ssh)"
-  echo "  -u, --upload PATH     Upload directory (default: \$HOME/ftp)"
-  echo "  -p, --port PORT       External port to expose (default: 2222)"
-  echo "  -P, --password PASS   Password for SFTP user (empty for key-only)"
-  echo "  -h, --help            Show this help message"
-  echo ""
-  echo "NOTES:"
-  echo "  - If no valid key path is found, the container runs password-only."
-  echo "  - Press Ctrl+C to stop; container is removed automatically."
-  echo ""
+  echo " "
+  echo "Usage:  $PACKAGE [OPTIONS]"
+  echo " "
+  echo -e "  ${Green}-k, --key PATH        ${Color_Off}SSH key file or directory (default: \$HOME/.ssh)"
+  echo -e "  ${Green}-u, --upload PATH     ${Color_Off}upload directory (default: \$HOME/ftp)"
+  echo -e "  ${Green}-p, --port PORT       ${Color_Off}port to expose (default: 2222)"
+  echo -e "  ${Green}-P, --password PASS   ${Color_Off}SFTP user password (empty for key-only)"
+  echo -e "  ${Green}-h, --help            ${Color_Off}display this help"
+  echo " "
+  echo "If no valid key path is found, the container runs password-only."
+  echo "Press Ctrl+C to stop; container is removed automatically."
 }
 
 $HELP && print_usage && exit 0
