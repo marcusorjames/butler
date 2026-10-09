@@ -3,6 +3,47 @@
 
 All notable changes to Butler are documented here.
 
+## [Unreleased]
+
+### Breaking changes
+
+- Site lifecycle hooks now live in `<site-dir>/hooks/` instead of `<site-dir>/scripts/`. Existing sites must rename their `scripts/` directory to `hooks/`; `scripts/` is reserved for commands run with `butler run`
+- All templates and shared services join a single `butler` network in place of the separate `nginx-proxy`, `mysql`, and `mailhog` networks. Existing sites must update their `docker-compose.yml` to use the `butler` network before `butler up`, or nginx-proxy will not route them
+- Mailhog is replaced by Mailpit. The SMTP host changes from `mailhog` to `mailpit` (port 1025); the web UI remains on port 8025
+
+### Added
+
+- Domain watcher that boots a site automatically when its `.test` domain is browsed, including multi-project sites
+- `butler site list`, `butler site clone`, and `butler templates` commands
+- `butler site status` and `butler site link` process every site when no site name is given
+- `butler scripts` lists scripts available for the current site; unknown commands run a matching site or global script, with built-in commands taking precedence and shadowed scripts flagged
+- `BUTLER_COMPOSE_FILES` layers extra compose files (colon-separated, relative to the site directory or absolute) on top of a site's `docker-compose.yml`
+- `exec` passes `-T` automatically when stdin is not a terminal
+- Docker Compose commands prompt to start the site when its stack is not running
+- Shell completion for commands, site names, and site subcommands
+- `butler` network is created automatically before shared services start
+- Contributing guide, code of conduct, security policy, issue and pull request templates, and an MIT licence
+
+### Changed
+
+- Help output follows the [Command Line Interface Guidelines](https://clig.dev) across every command, and `--help` exits 0 everywhere, including before initialisation
+- `butler site status` hides the site directory unless `--verbose` is set
+- Site loops share a single `for_each_site` helper
+- The global `composer` script is removed; the `composer` built-in runs Composer in the app container
+- The default branch is `main`
+
+### Fixed
+
+- Domain watcher runs as the home user so SSH keys and other home-relative paths resolve correctly
+- `butler site add` accepts context names containing hyphens and underscores
+- `butler site clone` respects `BUTLER_REQUIRED_CONTEXT` and the `-c` flag
+- Docker Compose commands check that the site is resolved before the app symlink pre-flight
+- Shell completion works in zsh
+- Templates based on EOL Debian Stretch images install apt packages without authentication errors
+- `butler site link` reports repaired links with a green `FIXED` badge
+
+---
+
 ## [beta] — June 2026
 
 ### Added
