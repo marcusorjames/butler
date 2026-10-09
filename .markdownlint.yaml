@@ -2,3 +2,4 @@ default: true
 MD013: false  # line length — impractical for tables and code blocks
 MD055:
   style: "leading_and_trailing"  # require spaces: | text |, | --- |
+MD041: false  # first-line heading — GitHub issue and PR templates start at h2
