@@ -192,3 +192,9 @@ just test    # run bats test suite
 ```
 
 Formatting and linting are enforced automatically on every commit via lefthook.
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution workflow and commit conventions, [SECURITY.md](SECURITY.md) for reporting vulnerabilities, and the [Code of Conduct](CODE_OF_CONDUCT.md) for community standards.
+
+## Licence
+
+Butler is released under the [MIT License](LICENSE).
