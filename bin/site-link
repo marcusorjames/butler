@@ -7,17 +7,15 @@ PACKAGE="butler site link"
 . "$COMMON_DIR/statusline.sh"
 
 print_usage() {
-  echo "Link a site or all sites"
+  echo "Link or repair app symlinks for a site or all sites"
   echo " "
-  echo "SYNOPSIS:"
+  echo "Usage:  $PACKAGE [SITE] [OPTIONS]"
   echo " "
-  echo "$PACKAGE [NAME] [OPTION]"
+  echo -e "  ${Green}-f, --fix       ${Color_Off}auto-fix broken symlinks"
+  echo -e "  ${Green}-v, --verbose   ${Color_Off}show skipped sites when processing all"
+  echo -e "  ${Green}-h, --help      ${Color_Off}display this help"
   echo " "
-  echo "  -h, --help         print this help"
-  echo "  -f, --fix          auto fix any broken links"
-  echo "  -v, --verbose      show skipped sites when linking all"
-  echo " "
-  echo "Omit NAME to process all sites."
+  echo "Omit SITE to process all sites."
 }
 
 link_single() {

@@ -6,22 +6,23 @@ PACKAGE="butler site"
 print_usage() {
   echo "Manage sites"
   echo " "
-  echo "SYNOPSIS:"
+  echo "Usage:  $PACKAGE COMMAND [OPTIONS]"
   echo " "
-  echo "$PACKAGE COMMAND ..."
-  echo " "
-  echo -e "${Yellow}Site Management:"
+  echo -e "${Yellow}Commands:"
   echo -e ""
-  echo -e "${Green}add     ${Color_Off}Add a new site"
-  echo -e "${Green}list    ${Color_Off}List all sites"
-  echo -e "${Green}clone   ${Color_Off}Clone a repo and link it to an existing site"
-  echo -e "${Green}cd      ${Color_Off}Change directory to site"
-  echo -e "${Green}convert ${Color_Off}Convert single-project site to multi-project"
-  echo -e "${Green}status  ${Color_Off}Show status of site(s)"
-  echo -e "${Green}link    ${Color_Off}Link a site(s)"
+  echo -e "  ${Green}add     ${Color_Off}add a new site"
+  echo -e "  ${Green}list    ${Color_Off}list all sites"
+  echo -e "  ${Green}clone   ${Color_Off}clone a repo and link it to an existing site"
+  echo -e "  ${Green}cd      ${Color_Off}change directory to a site"
+  echo -e "  ${Green}convert ${Color_Off}convert single-project site to multi-project"
+  echo -e "  ${Green}status  ${Color_Off}show status of site(s)"
+  echo -e "  ${Green}link    ${Color_Off}link or repair app symlinks"
+  echo -e ""
+  echo -e "  ${Green}-h, --help ${Color_Off}display this help"
 }
 
 [ ! "$#" -gt 0 ] && print_usage && exit 1
+[ "$1" = "-h" ] || [ "$1" = "--help" ] && print_usage && exit 0
 
 function="$1"
 shift
@@ -35,7 +36,6 @@ case $function in
 'status') . "$BIN_DIR/site-status" && main "$@" ;;
 'link') . "$BIN_DIR/site-link" && main "$@" ;;
 *)
-  print_usage
-  exit 1
+  print_usage && exit 1
   ;;
 esac

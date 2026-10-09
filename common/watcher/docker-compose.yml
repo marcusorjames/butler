@@ -9,6 +9,9 @@ services:
       VIRTUAL_HOST: butler-watcher
       BUTLER_SITES_DIR: ${BUTLER_SITES_DIR}
       BUTLER_TLD: ${BUTLER_TLD:-test}
+      # Site templates reference host paths via ~ (e.g. the user_ssh secret);
+      # compose expands ~ from HOME, so it must be the host user's home.
+      HOME: ${HOME}
 
 networks:
   default:

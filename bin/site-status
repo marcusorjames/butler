@@ -9,12 +9,12 @@ PACKAGE="butler site status"
 print_usage() {
   echo "Show the status of a site or all sites"
   echo " "
-  echo "SYNOPSIS:"
+  echo "Usage:  $PACKAGE [SITE] [OPTIONS]"
   echo " "
-  echo "$PACKAGE NAME [OPTION]"
+  echo -e "  ${Green}-v, --verbose   ${Color_Off}show site directory path"
+  echo -e "  ${Green}-h, --help      ${Color_Off}display this help"
   echo " "
-  echo "  -h, --help          print this help"
-  echo "  -v, --verbose       print site directory"
+  echo "Omit SITE to show status for all sites."
 }
 
 status_single() {

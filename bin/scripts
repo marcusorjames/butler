@@ -8,11 +8,9 @@ PACKAGE="butler scripts"
 print_usage() {
   echo "List available scripts for the current site"
   echo " "
-  echo "SYNOPSIS:"
+  echo "Usage:  $PACKAGE"
   echo " "
-  echo "$PACKAGE"
-  echo " "
-  echo "  -h, --help    print this help"
+  echo -e "  ${Green}-h, --help   ${Color_Off}display this help"
 }
 
 main() {

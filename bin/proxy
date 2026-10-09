@@ -1,17 +1,16 @@
-#!/bin/sh
+#!/bin/bash
 # proxy
 
 PACKAGE="butler proxy"
 
 print_usage() {
-  echo ""
   echo "Proxy site through ngrok"
-  echo "SYNOPSIS:"
   echo " "
-  echo "$PACKAGE [options]"
-  echo ""
-  echo "NOTE:"
-  echo "Ensure NGROK_AUTHTOKEN is set in .env"
+  echo "Usage:  $PACKAGE [SITE]"
+  echo " "
+  echo -e "  ${Green}-h, --help   ${Color_Off}display this help"
+  echo " "
+  echo "Requires NGROK_AUTHTOKEN to be set in .env"
 }
 
 [ "$1" = "-h" ] || [ "$1" = "--help" ] && print_usage && exit 0

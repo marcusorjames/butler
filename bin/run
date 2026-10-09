@@ -7,13 +7,13 @@ SCRIPTS_DIR="$ROOT_DIR/scripts"
 print_usage() {
   echo "Run a custom script"
   echo " "
-  echo "SYNOPSIS:"
+  echo "Usage:  $PACKAGE SCRIPT [ARGS]"
   echo " "
-  echo "$PACKAGE script... [options]"
-  echo ""
+  echo -e "  ${Green}-h, --help   ${Color_Off}display this help"
 }
 
 [ ! "$#" -gt 0 ] && print_usage && exit 1
+[ "$1" = "-h" ] || [ "$1" = "--help" ] && print_usage && exit 0
 
 site=$(basename "$CURRENT_SITE_DIR")
 

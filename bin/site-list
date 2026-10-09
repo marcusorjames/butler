@@ -8,9 +8,9 @@ PACKAGE="butler site list"
 print_usage() {
   echo "List all sites"
   echo " "
-  echo "SYNOPSIS:"
+  echo "Usage:  $PACKAGE"
   echo " "
-  echo "$PACKAGE"
+  echo -e "  ${Green}-h, --help   ${Color_Off}display this help"
 }
 
 _list_one() {
