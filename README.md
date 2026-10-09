@@ -46,6 +46,8 @@ butler COMMAND [SITE] [ARGS...]
 
 If `SITE` is omitted from site commands, butler infers the site from your current working directory.
 
+Commands that act on a running stack offer to start the site when its containers are not running. `butler exec` drops the TTY automatically when stdin is not a terminal, so it works in CI and pipes; `butler exect` always does.
+
 ### Management
 
 | Command | Description |
@@ -70,12 +72,14 @@ If `SITE` is omitted from site commands, butler infers the site from your curren
 | `butler down [SITE]` | Stop container stack |
 | `butler restart [SITE]` | Restart container stack |
 | `butler exec [SITE] [PROJECT] <cmd>` | Execute command on app container |
+| `butler exect [SITE] [PROJECT] <cmd>` | Execute command on app container without a TTY |
 | `butler shell [SITE] [PROJECT]` | Open a shell in the app container |
 | `butler php [SITE] <args>` | Run php on the container |
 | `butler composer [SITE] [PROJECT] <args>` | Run composer on the container |
 | `butler run [SITE] <script>` | Run a custom script |
 | `butler scripts [SITE]` | List available scripts for the current site |
 | `butler proxy [SITE]` | Proxy site through ngrok |
+| `butler docker-compose [SITE] <args>` | Docker Compose passthrough |
 
 ### Other Commands
 
@@ -118,6 +122,35 @@ Butler includes a watcher service that boots a site automatically when you brows
 When nginx-proxy receives a request for a domain with no running container, it falls through to the watcher. The watcher reads the `Host` header, maps it to a site directory in `BUTLER_SITES_DIR`, runs `docker compose up -d` in the background, and returns a page that auto-refreshes in five seconds once the stack is ready.
 
 The watcher starts automatically alongside nginx-proxy the first time you run any docker-compose command.
+
+## Shared Services
+
+Butler runs a few shared containers that every site can use. They all join the `butler` Docker network, which butler creates automatically, so sites reach them by container name.
+
+| Service | Started by | Details |
+| --- | --- | --- |
+| nginx-proxy | any docker-compose command | Routes `<name>.test` domains to site containers |
+| watcher | alongside nginx-proxy | Boots a site when its domain is browsed |
+| mysql | `butler mysql`, or a template's `hooks/up` | MariaDB at host `mysql`; password from `MYSQL_PASSWORD` |
+| mailpit | a template's `hooks/up` | SMTP at `mailpit:1025`, web UI at `http://localhost:8025` |
+
+Site templates declare the `butler` network as external, so a site's `docker-compose.yml` must include:
+
+```yaml
+networks:
+  default:
+    external: true
+    name: butler
+```
+
+## Hooks and Scripts
+
+Hooks and scripts live in the site directory and serve different purposes.
+
+- **Hooks** (`<site-dir>/hooks/<cmd>`) are sourced before the matching `docker compose` command. A `hooks/up` file runs before `docker compose up`, which makes it the place to start shared services.
+- **Scripts** (`<site-dir>/scripts/<name>`, or the global `scripts/` directory) are user-facing commands. Run one with `butler run <name>`, or directly as `butler <name>` when it does not clash with a built-in command. Site scripts take precedence over global scripts.
+
+`butler scripts` lists the scripts available for the current site and marks any that are shadowed by a built-in command; run those with `butler run <name>`.
 
 ## Two-Directory Model
 
