@@ -10,7 +10,7 @@ trap 'echo "Error: Script failed at line $LINENO."; exit 1' ERR
 UPLOAD_PATH="$HOME/ftp"
 EXTERNAL_PORT="20-21"
 PASSWORD=""
-HELP=false
+help=false
 
 # Helper to fetch the next argument safely
 require_arg() {
@@ -18,7 +18,7 @@ require_arg() {
   local val="${2:-}"
   if [[ -z "$val" || "$val" =~ ^- ]]; then
     echo "Error: Missing value for $opt" >&2
-    echo "Try '$(basename "$0") --help' for usage." >&2
+    echo "Try '$PACKAGE --help' for usage." >&2
     exit 1
   fi
   echo "$val"
@@ -46,7 +46,7 @@ while [[ $# -gt 0 ]]; do
     fi
     ;;
   -h | --help)
-    HELP=true
+    help=true
     shift
     ;;
   --)
@@ -55,7 +55,7 @@ while [[ $# -gt 0 ]]; do
     ;;
   *)
     echo "Unknown option: $1" >&2
-    echo "Try '$(basename "$0") --help' for usage." >&2
+    echo "Try '$PACKAGE --help' for usage." >&2
     exit 1
     ;;
   esac
@@ -74,7 +74,7 @@ print_usage() {
   echo "Press Ctrl+C to stop; container is removed automatically."
 }
 
-$HELP && print_usage && exit 0
+$help && print_usage && exit 0
 
 # Validate upload dir
 mkdir -p "$UPLOAD_PATH"
