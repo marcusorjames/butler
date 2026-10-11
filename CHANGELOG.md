@@ -3,7 +3,7 @@
 
 All notable changes to Butler are documented here.
 
-## [Unreleased]
+## [1.0.0] — October 2026
 
 ### Breaking changes
 
@@ -18,6 +18,7 @@ All notable changes to Butler are documented here.
 - `butler site status` and `butler site link` process every site when no site name is given
 - `butler scripts` lists scripts available for the current site; unknown commands run a matching site or global script, with built-in commands taking precedence and shadowed scripts flagged
 - `BUTLER_COMPOSE_FILES` layers extra compose files (colon-separated, relative to the site directory or absolute) on top of a site's `docker-compose.yml`
+- `butler --version` (`-V`) prints the version, which is read from the `VERSION` file
 - `exec` passes `-T` automatically when stdin is not a terminal
 - Docker Compose commands prompt to start the site when its stack is not running
 - Shell completion for commands, site names, and site subcommands
