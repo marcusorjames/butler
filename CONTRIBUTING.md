@@ -54,6 +54,21 @@ The `commit-msg` hook checks spelling with `aspell` and warns when no Jira refer
 - Command-line behaviour follows the [Command Line Interface Guidelines](https://clig.dev). Subcommands print help with a `print_usage` function: a one-line description, a `Usage:  butler …` line, then options with lowercase descriptions. `-h` and `--help` print help and exit 0.
 - Use the colour variables from `bin/common/colours.sh` (`CError`, `CWarn`, `CSuccess`) for status and error output, and `die_with_error` to abort.
 
+## Releasing
+
+Releases use [semantic versioning](https://semver.org). The version lives in the `VERSION` file at the repository root, and `butler --version` reads it.
+
+1. On a branch, set `VERSION` and rename the `[Unreleased]` heading in `CHANGELOG.md` to `[X.Y.Z] — Month YYYY`.
+2. Merge the pull request into `main`.
+3. Tag the merge commit and push the tag:
+
+   ```bash
+   git tag vX.Y.Z
+   git push origin vX.Y.Z
+   ```
+
+The release workflow reruns the checks and publishes a GitHub release using the matching `CHANGELOG.md` section as its notes. It fails if that section does not exist. Tags containing a hyphen, such as `vX.Y.Z-rc.1`, are published as pre-releases.
+
 ## Reporting bugs and requesting features
 
 Use the issue templates on GitHub. For security issues, follow [SECURITY.md](SECURITY.md) instead of opening a public issue.
