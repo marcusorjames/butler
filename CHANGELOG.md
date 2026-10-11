@@ -23,6 +23,7 @@ All notable changes to Butler are documented here.
 - Shell completion for commands, site names, and site subcommands
 - `butler` network is created automatically before shared services start
 - Contributing guide, code of conduct, security policy, issue and pull request templates, and an MIT licence
+- Release workflow that publishes a GitHub release from the matching `CHANGELOG.md` section when a `v*` tag is pushed, and Dependabot updates for GitHub Actions
 
 ### Changed
 
