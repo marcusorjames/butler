@@ -46,6 +46,8 @@ butler COMMAND [SITE] [ARGS...]
 
 If `SITE` is omitted from site commands, butler infers the site from your current working directory.
 
+Run `butler --version` to print the installed version and `butler --help` to list every command.
+
 Commands that act on a running stack offer to start the site when its containers are not running. `butler exec` drops the TTY automatically when stdin is not a terminal, so it works in CI and pipes; `butler exect` always does.
 
 ### Management

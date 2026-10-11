@@ -8,6 +8,7 @@ while [ -L "$SOURCE" ]; do SOURCE="$(readlink "$SOURCE")"; done
 ROOT_DIR="$(cd "$(dirname "$SOURCE")" && pwd)"
 BIN_DIR="$ROOT_DIR/bin"
 COMMON_DIR="$BIN_DIR/common"
+VERSION="$(cat "$ROOT_DIR/VERSION")"
 . "$COMMON_DIR/init.sh"
 . "$COMMON_DIR/colours.sh"
 . "$COMMON_DIR/functions.sh"
@@ -18,7 +19,7 @@ export BUTLER_PROJECT="${BUTLER_PROJECT:-$(basename "$PWD")}"
 export PATH="$PATH:$COMMON_DIR"
 
 print_usage() {
-  echo "butler version 0.1.0 - your friendly dev stack helper"
+  echo "butler version $VERSION - your friendly dev stack helper"
   echo " "
   echo "Usage:  $package COMMAND [SITE] [OPTIONS]"
   echo " "
@@ -55,11 +56,13 @@ print_usage() {
   echo -e "  ${Green}sftp                 ${Color_Off}run an ephemeral SFTP server"
   echo -e "  ${Green}mysql                ${Color_Off}open a MySQL shell"
   echo -e ""
+  echo -e "  ${Green}-V, --version        ${Color_Off}display the version"
   echo -e "  ${Green}-h, --help           ${Color_Off}display this help"
 }
 
 [ ! "$#" -gt 0 ] && print_usage && exit 1
 [ "$1" = "-h" ] || [ "$1" = "--help" ] && print_usage && exit 0
+[ "$1" = "-V" ] || [ "$1" = "--version" ] && echo "butler $VERSION" && exit 0
 
 init
 
