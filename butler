@@ -82,7 +82,7 @@ esac
 
 # Container-targeting commands resolve which container to use
 case $function in
-exec | php | exect | shell | composer)
+exec | php | exect | shell | composer | proxy)
   resolve_container "$1" && shift
   ;;
 esac

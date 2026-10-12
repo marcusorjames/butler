@@ -3,6 +3,16 @@
 
 All notable changes to Butler are documented here.
 
+## [Unreleased]
+
+### Added
+
+- `BUTLER_NGROK_DOMAIN` pins `butler proxy` to a static ngrok domain so the URL is the same on every run. A free ngrok account includes one; without it `butler proxy` prints a tip and ngrok assigns a random URL as before
+
+### Fixed
+
+- `butler proxy` serves multi-project sites: `butler proxy [SITE] [PROJECT]` tunnels the selected project at its own domain, including any `BUTLER_PROJECT_<NAME>` override
+
 ## [1.0.0] — October 2026
 
 ### Breaking changes

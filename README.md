@@ -35,6 +35,7 @@ BUTLER_PROJECTS_DIR=~/Projects/    # where Git repos live
 BUTLER_REQUIRED_CONTEXT=false      # if true, site add requires a context subdirectory
 BUTLER_TLD=test                    # local domain TLD (sites served at <name>.test)
 NGROK_AUTHTOKEN=changeme           # ngrok token for butler proxy
+BUTLER_NGROK_DOMAIN=your-name.ngrok-free.dev  # optional: static ngrok domain, keeps the same URL between runs
 MYSQL_PASSWORD=secret              # shared MySQL password
 ```
 
@@ -80,7 +81,7 @@ Commands that act on a running stack offer to start the site when its containers
 | `butler composer [SITE] [PROJECT] <args>` | Run composer on the container |
 | `butler run [SITE] <script>` | Run a custom script |
 | `butler scripts [SITE]` | List available scripts for the current site |
-| `butler proxy [SITE]` | Proxy site through ngrok |
+| `butler proxy [SITE] [PROJECT]` | Proxy site through ngrok (PROJECT selects the project on multi-project sites) |
 | `butler docker-compose [SITE] <args>` | Docker Compose passthrough |
 
 ### Other Commands
