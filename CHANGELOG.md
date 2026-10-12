@@ -3,6 +3,12 @@
 
 All notable changes to Butler are documented here.
 
+## [Unreleased]
+
+### Fixed
+
+- `butler proxy` serves multi-project sites: `butler proxy [SITE] [PROJECT]` tunnels the selected project at its own domain, including any `BUTLER_PROJECT_<NAME>` override
+
 ## [1.0.0] — October 2026
 
 ### Breaking changes

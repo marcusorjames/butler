@@ -31,6 +31,7 @@ init_site() {
   [ -z "$site_dir" ] && return 0
 
   export CURRENT_SITE_DIR="$site_dir"
+  export CURRENT_SITE="${site_dir##*/}"
 
   # site.env: committed site defaults (BUTLER_PROJECTS, BUTLER_APP_CONTAINER, etc.)
   if [ -f "${site_dir}/site.env" ]; then
@@ -63,6 +64,19 @@ init_site() {
   export CURRENT_PROJ_DIR="${PROJECTS_DIR}/${BUTLER_PROJECT}"
   [ -n "$BUTLER_PROJECT_DIR" ] && export CURRENT_PROJ_DIR="$BUTLER_PROJECT_DIR"
   return 0
+}
+
+# Print the domain name (without TLD) a project is served at. Multi-project
+# sites honour a BUTLER_PROJECT_<NAME> override; otherwise it is the project name.
+project_host() {
+  local name="${1:-$BUTLER_PROJECT}"
+  if [ -n "$BUTLER_PROJECTS" ]; then
+    local var
+    var="BUTLER_PROJECT_$(echo "$name" | tr '[:lower:]-' '[:upper:]_')"
+    echo "${!var:-$name}"
+  else
+    echo "$name"
+  fi
 }
 
 resolve_container() {

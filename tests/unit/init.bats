@@ -3,6 +3,13 @@ load "../helpers/common"
 
 # --- init_site ---
 
+@test "init_site exports CURRENT_SITE as the site directory name" {
+  local site_dir
+  site_dir="$(mktemp -d)"
+  init_site "$site_dir"
+  [ "$CURRENT_SITE" = "${site_dir##*/}" ]
+}
+
 @test "init_site exports CURRENT_SITE_DIR" {
   local site_dir
   site_dir="$(mktemp -d)"
@@ -118,3 +125,20 @@ load "../helpers/common"
   [ "$BUTLER_APP_CONTAINER" = "project-b" ]
 }
 
+
+# --- project_host ---
+
+@test "project_host returns the project name for single-project sites" {
+  BUTLER_PROJECT=mysite
+  [ "$(project_host)" = "mysite" ]
+}
+
+@test "project_host returns the BUTLER_PROJECT_<NAME> override for multi-project sites" {
+  local site_dir
+  site_dir="$(mktemp -d)"
+  echo "BUTLER_PROJECTS=commerce,engine" >"$site_dir/site.env"
+  echo "BUTLER_PROJECT_COMMERCE=commerce.example" >"$site_dir/.env"
+  init_site "$site_dir"
+  [ "$(project_host commerce)" = "commerce.example" ]
+  [ "$(project_host engine)" = "engine" ]
+}

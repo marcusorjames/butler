@@ -6,7 +6,7 @@ PACKAGE="butler proxy"
 print_usage() {
   echo "Proxy site through ngrok"
   echo " "
-  echo "Usage:  $PACKAGE [SITE]"
+  echo "Usage:  $PACKAGE [SITE] [PROJECT]"
   echo " "
   echo -e "  ${Green}-h, --help   ${Color_Off}display this help"
   echo " "
@@ -15,6 +15,12 @@ print_usage() {
 
 [ "$1" = "-h" ] || [ "$1" = "--help" ] && print_usage && exit 0
 
+if [ -n "$BUTLER_PROJECTS" ]; then
+  host="$(project_host "$BUTLER_APP_CONTAINER")"
+else
+  host="$(project_host)"
+fi
+
 docker run -it --network butler \
   -e NGROK_AUTHTOKEN="${NGROK_AUTHTOKEN}" \
-  ngrok/ngrok:alpine http --host-header=rewrite "${BUTLER_PROJECT}.${BUTLER_TLD:-test}:80"
+  ngrok/ngrok:alpine http --host-header=rewrite "${host}.${BUTLER_TLD:-test}:80"
