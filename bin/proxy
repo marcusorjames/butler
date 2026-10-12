@@ -11,6 +11,7 @@ print_usage() {
   echo -e "  ${Green}-h, --help   ${Color_Off}display this help"
   echo " "
   echo "Requires NGROK_AUTHTOKEN to be set in .env"
+  echo "Set BUTLER_NGROK_DOMAIN to your free static domain (https://dashboard.ngrok.com/domains) to keep the same URL between runs"
 }
 
 [ "$1" = "-h" ] || [ "$1" = "--help" ] && print_usage && exit 0
@@ -21,6 +22,13 @@ else
   host="$(project_host)"
 fi
 
+url_args=()
+if [ -n "${BUTLER_NGROK_DOMAIN:-}" ]; then
+  url_args=(--url="https://${BUTLER_NGROK_DOMAIN}")
+else
+  echo -e "${CWarn}Tip:${Color_Off} ngrok assigns a random URL each run. Claim a free static domain at https://dashboard.ngrok.com/domains and set BUTLER_NGROK_DOMAIN in .env to keep it the same."
+fi
+
 docker run -it --network butler \
   -e NGROK_AUTHTOKEN="${NGROK_AUTHTOKEN}" \
-  ngrok/ngrok:alpine http --host-header=rewrite "${host}.${BUTLER_TLD:-test}:80"
+  ngrok/ngrok:alpine http --host-header=rewrite "${url_args[@]}" "${host}.${BUTLER_TLD:-test}:80"
