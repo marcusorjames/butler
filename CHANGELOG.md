@@ -3,7 +3,7 @@
 
 All notable changes to Butler are documented here.
 
-## [Unreleased]
+## [1.1.0] — October 2026
 
 ### Added
 
