@@ -150,7 +150,7 @@ networks:
 
 Hooks and scripts live in the site directory and serve different purposes.
 
-- **Hooks** (`<site-dir>/hooks/<cmd>`) are sourced before the matching `docker compose` command. A `hooks/up` file runs before `docker compose up`, which makes it the place to start shared services.
+- **Hooks** (`<site-dir>/hooks/<cmd>`) are sourced before the matching `docker compose` command. A `hooks/up` file runs before `docker compose up`, which makes it the place to start shared services. A `hooks/proxy` file is sourced before `butler proxy` starts the tunnel, in the same shell, so it can start helper processes and stop them with an `EXIT` trap when the tunnel ends.
 - **Scripts** (`<site-dir>/scripts/<name>`, or the global `scripts/` directory) are user-facing commands. Run one with `butler run <name>`, or directly as `butler <name>` when it does not clash with a built-in command. Site scripts take precedence over global scripts.
 
 `butler scripts` lists the scripts available for the current site and marks any that are shadowed by a built-in command; run those with `butler run <name>`.

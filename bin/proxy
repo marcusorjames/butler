@@ -29,6 +29,12 @@ else
   echo -e "${CWarn}Tip:${Color_Off} ngrok assigns a random URL each run. Claim a free static domain at https://dashboard.ngrok.com/domains and set BUTLER_NGROK_DOMAIN in .env to keep it the same."
 fi
 
+# Run any site hooks
+if [ -f "$CURRENT_SITE_DIR/hooks/proxy" ]; then
+  # shellcheck source=/dev/null
+  . "$CURRENT_SITE_DIR/hooks/proxy"
+fi
+
 docker run -it --network butler \
   -e NGROK_AUTHTOKEN="${NGROK_AUTHTOKEN}" \
   ngrok/ngrok:alpine http --host-header=rewrite "${url_args[@]}" "${host}.${BUTLER_TLD:-test}:80"
